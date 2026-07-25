@@ -31,7 +31,7 @@ collections:
       - { label: "Imagem de Capa", name: "image", widget: "image", required: false }
       - { label: "Conteúdo", name: "body", widget: "markdown" }
 
-  # 3. GALERIA DE FOTOS (NON-TECH FRIENDLY)
+  # 3. GALERIA DE FOTOS (NATIVE MULTI-IMAGE BATCH UPLOAD)
   - name: "galleries"
     label: "Galeria de Fotos"
     folder: "src/content/galleries"
@@ -43,10 +43,9 @@ collections:
       - { label: "Localização", name: "location", widget: "string", default: "Porto" }
       - label: "Fotografias"
         name: "photos"
-        widget: "list"
+        widget: "image"
+        multiple: true
         required: false
-        hint: "Clica em 'Add' para selecionar fotos. Podes selecionar várias fotos de uma só vez na biblioteca de media!"
-        field: { label: "Fotografia", name: "url", widget: "image" }
 
   # 4. PROFISSIONAIS
   - name: "professionals"
