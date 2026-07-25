@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: stefanoaguiar/porto-nao-mono # Replace with your GitHub username/repo-name
+  repo: stefanoraguiar/porto-nao-mono # Replace with your GitHub username/repo-name
   branch: main
 
 media_folder: "public/images/uploads"
