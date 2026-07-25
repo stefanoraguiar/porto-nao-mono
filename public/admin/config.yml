@@ -2,39 +2,62 @@ backend:
   name: git-gateway
   branch: main
 
-media_folder: "public/uploads"
-public_folder: "/uploads"
+# Where uploaded images will be stored in your project
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
 
 collections:
+  # 1. EVENTS COLLECTION
+  - name: "events"
+    label: "Eventos"
+    folder: "src/content/events"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: "Título", name: "title", widget: "string" }
+      - { label: "Data e Hora do Evento", name: "eventDate", widget: "datetime" }
+      - { label: "Localização", name: "location", widget: "string" }
+      - { label: "Descrição", name: "body", widget: "markdown", required: false }
+
+  # 2. ARTICLES COLLECTION
   - name: "articles"
-    label: "Articles"
+    label: "Artigos"
     folder: "src/content/articles"
     create: true
     slug: "{{slug}}"
     fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Publish Date", name: "date", widget: "datetime" }
-      - { label: "Author", name: "author", widget: "string" }
-      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Título", name: "title", widget: "string" }
+      - { label: "Data de Publicação", name: "date", widget: "datetime" }
+      - { label: "Autor(a)", name: "author", widget: "string", default: "Tertúlias Não Mónó" }
+      - { label: "Imagem de Capa", name: "image", widget: "image", required: false }
+      - { label: "Conteúdo", name: "body", widget: "markdown" }
 
-  - name: "events"
-    label: "Events"
-    folder: "src/content/events"
+  # 3. PHOTO GALLERIES COLLECTION
+  - name: "galleries"
+    label: "Galeria de Fotos"
+    folder: "src/content/galleries"
     create: true
-    slug: "{{slug}}"
+    slug: "{{year}}-{{month}}-{{slug}}"
     fields:
-      - { label: "Event Title", name: "title", widget: "string" }
-      - { label: "Event Date", name: "eventDate", widget: "datetime" }
-      - { label: "Location", name: "location", widget: "string" }
-      - { label: "Description", name: "body", widget: "markdown" }
+      - { label: "Título do Álbum", name: "title", widget: "string" }
+      - { label: "Data do Evento", name: "eventDate", widget: "datetime" }
+      - { label: "Localização", name: "location", widget: "string", default: "Porto" }
+      - label: "Fotografias"
+        name: "photos"
+        widget: "list"
+        fields:
+          - { label: "Imagem", name: "url", widget: "image" }
+          - { label: "Legenda", name: "caption", widget: "string", required: false }
 
+  # 4. PROFESSIONALS COLLECTION
   - name: "professionals"
-    label: "Professionals"
+    label: "Profissionais"
     folder: "src/content/professionals"
     create: true
     slug: "{{slug}}"
     fields:
-      - { label: "Name / Title", name: "title", widget: "string" }
-      - { label: "Specialty / Role", name: "role", widget: "string" }
-      - { label: "Contact Info / Link", name: "contact", widget: "string" }
-      - { label: "Bio", name: "body", widget: "markdown" }
+      - { label: "Nome / Título", name: "title", widget: "string" }
+      - { label: "Especialidade / Cargo", name: "role", widget: "string" }
+      - { label: "Contacto / Link", name: "contact", widget: "string", required: false }
+      - { label: "Fotografia", name: "image", widget: "image", required: false }
+      - { label: "Bio / Apresentação", name: "body", widget: "markdown", required: false }

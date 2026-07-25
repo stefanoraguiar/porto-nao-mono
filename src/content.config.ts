@@ -1,3 +1,4 @@
+// File: src/content.config.ts
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
@@ -30,4 +31,20 @@ const professionals = defineCollection({
   }),
 });
 
-export const collections = { articles, events, professionals };
+// NEW: Photo Gallery Collection
+const galleries = defineCollection({
+  loader: glob({ pattern: '**/[^_]*.md', base: './src/content/galleries' }),
+  schema: z.object({
+    title: z.string(),
+    eventDate: z.coerce.date(),
+    location: z.string().optional().default('Porto'),
+    photos: z.array(
+      z.object({
+        url: z.string(),
+        caption: z.string().optional().default(''),
+      })
+    ),
+  }),
+});
+
+export const collections = { articles, events, professionals, galleries };
