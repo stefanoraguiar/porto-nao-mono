@@ -7,75 +7,54 @@ interface Props {
 const { title } = Astro.props;
 ---
 
-<!text/html>
-<html lang="pt">
+<!DOCTYPE html>
+<html lang="pt" class="bg-slate-50 text-slate-800 antialiased">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title} | Tertúlias Não Mónó</title>
-    <!-- Simple default styling to make it clean -->
+    <title>{title} | Porto Não-Monogâmico</title>
+  
     <style is:global>
-      :root {
-        --primary: #4f46e5;
-        --bg: #f9fafb;
-        --text: #1f2937;
-      }
-      body {
-        font-family: system-ui, -apple-system, sans-serif;
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 1rem 2rem;
-        background-color: var(--bg);
-        color: var(--text);
-        line-height: 1.6;
-      }
-      header nav {
-        display: flex;
-        gap: 1.5rem;
-        padding: 1rem 0;
-        border-bottom: 1px solid #e5e7eb;
-        margin-bottom: 2rem;
-      }
-      header nav a {
-        text-decoration: none;
-        color: var(--text);
-        font-weight: 600;
-      }
-      header nav a:hover {
-        color: var(--primary);
-      }
-      header nav a.admin-link {
-        margin-left: auto;
-        color: var(--primary);
-      }
-      footer {
-        margin-top: 3rem;
-        padding-top: 1rem;
-        border-top: 1px solid #e5e7eb;
-        font-size: 0.875rem;
-        color: #6b7280;
-        text-align: center;
-      }
+        @import "tailwindcss";
     </style>
   </head>
-  <body>
-    <header>
-      <nav>
-        <a href="/">Início</a>
-        <a href="/articles">Artigos</a>
-        <a href="/events">Eventos</a>
-        <a href="/professionals">Profissionais</a>
-        <a href="/admin" class="admin-link">Área de Contribuidores →</a>
-      </nav>
+  <body class="min-h-screen flex flex-col font-sans">
+    
+    <!-- Top Navigation Bar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        
+        <!-- Site Logo / Brand -->
+        <a href="/" class="font-bold text-lg text-indigo-900 hover:text-indigo-600 transition">
+          Tertúlias Não Mónó
+        </a>
+
+        <!-- Navigation Links -->
+        <nav class="flex items-center gap-6 text-sm font-medium text-slate-600">
+          <a href="/articles" class="hover:text-indigo-600 transition">Artigos</a>
+          <a href="/events" class="hover:text-indigo-600 transition">Eventos</a>
+          <a href="/professionals" class="hover:text-indigo-600 transition">Profissionais</a>
+          <a 
+            href="/admin" 
+            class="hidden sm:inline-block bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-indigo-100 transition"
+          >
+            Área de Contribuidores →
+          </a>
+        </nav>
+      </div>
     </header>
 
-    <main>
-      <!-- Page content will be injected here -->
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <slot />
     </main>
 
-    <footer>
-      <p>&copy; {new Date().getFullYear()} Tertúlias Não Mónó. Todos os direitos reservados.</p>
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-8">
+      <div class="max-w-5xl mx-auto px-4 text-center text-xs text-slate-500">
+        <p>&copy; {new Date().getFullYear()} Tertúlias Não Mónó. Um espaço de diálogo e partilha comunitária.</p>
+      </div>
     </footer>
+
   </body>
 </html>
