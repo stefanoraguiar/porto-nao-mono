@@ -2,29 +2,31 @@ import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
 const articles = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/articles' }),
+  loader: glob({ pattern: '**/[^_]*.md', base: './src/content/articles' }),
   schema: z.object({
-    title: z.string(),
-    date: z.coerce.date(),
-    author: z.string(),
+    title: z.string().default('Sem Título'),
+    date: z.coerce.date().default(() => new Date()),
+    author: z.string().nullable().optional().default('Tertúlias Não Mónó'),
+    image: z.string().nullable().optional().default(''),
   }),
 });
 
 const events = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/events' }),
+  loader: glob({ pattern: '**/[^_]*.md', base: './src/content/events' }),
   schema: z.object({
-    title: z.string(),
-    eventDate: z.coerce.date(),
-    location: z.string(),
+    title: z.string().default('Sem Título'),
+    eventDate: z.coerce.date().default(() => new Date()),
+    location: z.string().default('A anunciar'),
   }),
 });
 
 const professionals = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/professionals' }),
+  loader: glob({ pattern: '**/[^_]*.md', base: './src/content/professionals' }),
   schema: z.object({
-    title: z.string(),
-    role: z.string(),
-    contact: z.string(),
+    title: z.string().default('Sem Título'),
+    role: z.string().default('Profissional'),
+    contact: z.string().nullable().optional().default('N/A'),
+    image: z.string().nullable().optional().default(''),
   }),
 });
 

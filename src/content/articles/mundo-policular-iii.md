@@ -2,6 +2,7 @@
 title: "Mundo Policular (III)"
 date: 2026-05-01T12:55:00.000Z
 author: "Francisco Rodrigues"
+image: "https://cdn.sanity.io/images/zhr2ddpl/production/52fc09e37f7810ffd81889a0ca1171816b1db709-2752x1536.png"
 ---
 
 Tempo e energia. Duas variáveis complexas de gerir na Não Monogamia, quando temos mais do que um afecto. Falo de afecto como familiares, amigues, parceires românticos ou sexuais. Porque tempo e energia são recursos limitados.

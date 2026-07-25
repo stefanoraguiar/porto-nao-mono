@@ -2,6 +2,7 @@
 title: "No centro estou eu"
 date: 2026-05-05T18:36:51.764Z
 author: "Bárbara Tavares"
+image: "https://cdn.sanity.io/images/zhr2ddpl/production/f25dcb44e0a173ed7f9ada7258af22faf779dbc2-2752x1536.png"
 ---
 
 

@@ -2,6 +2,7 @@
 title: "Marco de Criação"
 date: 2025-11-03T20:02:00.000Z
 author: "Stefano Aguiar"
+image: ""
 ---
 
 Com base na iniciativa de alguns membros do grupo, o site está oficialmente aberto!

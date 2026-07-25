@@ -2,6 +2,7 @@
 title: "Mães não-mono existem?"
 date: 2026-04-15T21:41:38.290Z
 author: "Vida Oliveira"
+image: "https://cdn.sanity.io/images/zhr2ddpl/production/a1612b84a88245f4fb42c6f3ee7ef59caea7d3ae-2816x1536.png"
 ---
 
 _Uma puérpera, um post da Geni Nunes e a pergunta que mudou tudo_

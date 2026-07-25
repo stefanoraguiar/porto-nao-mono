@@ -2,6 +2,7 @@
 title: "Mundo Policular (II)"
 date: 2026-04-23T16:27:09.966Z
 author: "Francisco Rodrigues"
+image: "https://cdn.sanity.io/images/zhr2ddpl/production/b6faf32257a82f2e5c5aa483e60887b21e9d5878-2816x1536.png"
 ---
 
 Não Monogamia Ética (NME). Sim, mas de que tipo?

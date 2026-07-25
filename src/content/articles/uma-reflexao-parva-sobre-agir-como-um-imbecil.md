@@ -2,6 +2,7 @@
 title: "Uma Reflexão Parva Sobre Agir como um Imbecil"
 date: 2026-03-16T22:44:54.069Z
 author: "Stefano Aguiar"
+image: ""
 ---
 
 “Ei, vêm uns amigos para ver os óscares, como no ano passado, e pensei em convidar-te, afinal foi tão divertido contigo da última vez.”

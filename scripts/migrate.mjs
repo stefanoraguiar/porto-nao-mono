@@ -3,7 +3,6 @@ import { portableTextToMarkdown } from '@portabletext/markdown';
 import fs from 'fs';
 import path from 'path';
 
-// Connect to Sanity
 const client = createClient({
   projectId: 'zhr2ddpl',
   dataset: 'production',
@@ -11,45 +10,49 @@ const client = createClient({
   apiVersion: '2024-01-01',
 });
 
-// Helper function to create clean file slugs
 function slugify(text) {
   return (text || 'untitled')
     .toString()
     .toLowerCase()
     .trim()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Remove accents
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/\s+/g, '-')
     .replace(/[^\w\-]+/g, '')
     .replace(/\-\-+/g, '-');
 }
 
-// Ensure directory exists
 function ensureDirExists(dir) {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 }
 
+// Convert Sanity image asset reference into direct CDN URL
+function parseSanityImageUrl(imageObj) {
+  if (!imageObj) return '';
+  if (typeof imageObj === 'string' && imageObj.startsWith('http')) return imageObj;
+  
+  const ref = imageObj?.asset?._ref || imageObj?._ref;
+  if (!ref) return '';
+  
+  // Sanity image ref format: "image-[id]-[dimensions]-[format]"
+  const parts = ref.split('-');
+  if (parts.length < 4 || parts[0] !== 'image') return '';
+  
+  const id = parts[1];
+  const dimensions = parts[2];
+  const format = parts[3];
+  
+  return `https://cdn.sanity.io/images/zhr2ddpl/production/${id}-${dimensions}.${format}`;
+}
+
 async function migrate() {
   console.log('Fetching documents from Sanity...');
-  
-  // Fetch all documents and filter system types in JS
   const allDocs = await client.fetch('*');
   const docs = allDocs.filter(
     (d) => d._type && !d._type.startsWith('sanity.') && !d._type.startsWith('system.')
   );
-
-  console.log(`Found ${docs.length} user documents in Sanity.`);
-
-  // Print all document types found in Sanity
-  const typeSummary = {};
-  docs.forEach((d) => {
-    typeSummary[d._type] = (typeSummary[d._type] || 0) + 1;
-  });
-  console.log('\n--- SANITY DOCUMENT TYPES FOUND ---');
-  console.dir(typeSummary);
-  console.log('-----------------------------------\n');
 
   let articleCount = 0;
   let proCount = 0;
@@ -59,7 +62,6 @@ async function migrate() {
     const title = doc.title || doc.name || 'Sem Título';
     const slug = doc.slug?.current || slugify(title);
     
-    // Convert portable text body to Markdown if present
     let bodyMarkdown = '';
     const rawBody = doc.body || doc.content || doc.bio || doc.description;
     if (Array.isArray(rawBody)) {
@@ -78,11 +80,16 @@ async function migrate() {
     if (['post', 'article', 'artigo', 'tertulia', 'artigos', 'blogpost'].includes(type)) {
       const author = doc.authorName || doc.author || 'Tertúlias Não Mónó';
       const date = doc.publishedAt || doc.date || doc._createdAt || new Date().toISOString();
+      
+      // Extract image URL from common Sanity image field names
+      const rawImage = doc.mainImage || doc.image || doc.coverImage || doc.featuredImage || doc.headerImage;
+      const imageUrl = parseSanityImageUrl(rawImage);
 
       const frontmatter = `---
 title: "${title.replace(/"/g, '\\"')}"
 date: ${new Date(date).toISOString()}
 author: "${author.replace(/"/g, '\\"')}"
+image: "${imageUrl}"
 ---
 
 ${bodyMarkdown}
@@ -93,15 +100,18 @@ ${bodyMarkdown}
       articleCount++;
     }
 
-    // B. Handle Professionals / Persons
+    // B. Handle Professionals
     if (['professional', 'person', 'profissional', 'author', 'membro', 'profissionais', 'member'].includes(type)) {
       const role = doc.role || doc.specialty || doc.cargo || 'Profissional';
       const contact = doc.contact || doc.email || doc.website || doc.link || 'N/A';
+      const rawImage = doc.mainImage || doc.image || doc.photo || doc.avatar;
+      const imageUrl = parseSanityImageUrl(rawImage);
 
       const frontmatter = `---
 title: "${title.replace(/"/g, '\\"')}"
 role: "${role.replace(/"/g, '\\"')}"
 contact: "${contact.replace(/"/g, '\\"')}"
+image: "${imageUrl}"
 ---
 
 ${bodyMarkdown}
@@ -132,10 +142,10 @@ ${bodyMarkdown}
     }
   }
 
-  console.log(`\n🎉 Migration finished!`);
-  console.log(`- ${articleCount} Articles imported into src/content/articles/`);
-  console.log(`- ${proCount} Professionals imported into src/content/professionals/`);
-  console.log(`- ${eventCount} Events imported into src/content/events/`);
+  console.log(`\n🎉 Re-migration finished!`);
+  console.log(`- ${articleCount} Articles re-imported into src/content/articles/`);
+  console.log(`- ${proCount} Professionals re-imported into src/content/professionals/`);
+  console.log(`- ${eventCount} Events re-imported into src/content/events/`);
 }
 
 migrate().catch((err) => {

@@ -2,6 +2,7 @@
 title: "Espelho, espelho meu..."
 date: 2026-04-06T18:34:22.582Z
 author: "Stefano Aguiar"
+image: "https://cdn.sanity.io/images/zhr2ddpl/production/0a1dbd80cecdf713fa7bcda8d6fcbaa923a5c9ba-2816x1536.png"
 ---
 
 _Espelho, espelho meu…_

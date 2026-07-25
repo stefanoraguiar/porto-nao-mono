@@ -2,6 +2,7 @@
 title: "Mundo Policular (I)"
 date: 2025-12-15T22:43:00.000Z
 author: "Francisco Rodrigues"
+image: "https://cdn.sanity.io/images/zhr2ddpl/production/bdcc6e9a200233d4d41e953852438f1fc9af417a-1024x559.webp"
 ---
 
 Primeiro, era o afecto. Este é o início da minha Bíblia. E a minha crença é a Não Monogamia. Num dos meus escritos, há quase vinte anos, escrevi que não acreditava que o ser humano fosse monogâmico. Não me fazia sentido que o mesmo Ser que pode amar dois pais, dois irmãos ou dois filhos, não pudesse ter dois interesses românticos. Ainda mais para mim, que sempre me considerei romântico e afectuoso. Estaria a falhar ao apaixonar por duas pessoas? Não poderiam duas ou mais pessoas atrair-me, de formas diferentes ou iguais? E nessa altura não consegui desconstruir esta dissonância cognitiva.

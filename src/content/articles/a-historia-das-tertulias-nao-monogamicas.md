@@ -2,6 +2,7 @@
 title: "A História das Tertúlias Não-Monogâmicas"
 date: 2025-11-16T22:40:00.000Z
 author: "Stefano Aguiar"
+image: "https://cdn.sanity.io/images/zhr2ddpl/production/2dedb43007d990711d1cb9c6ed8a74ed15431522-1730x1155.webp"
 ---
 
 Em Março de 2024, mais precisamente a 21, a cidade do Porto celebrava o Dia Mundial da Poesia com a primeira edição do Festival Internacional de Poesia do Porto (FIPP). Entretanto, num dos redutos artísticos da cidade, o Espaço Compasso, celebrava-se também com poesia uma outra inauguração.
