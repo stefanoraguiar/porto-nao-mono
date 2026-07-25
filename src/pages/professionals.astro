@@ -1,0 +1,28 @@
+---
+import { getCollection } from 'astro:content';
+
+const allProfessionals = await getCollection('professionals');
+---
+
+<html lang="pt">
+  <head>
+    <meta charset="utf-8" />
+    <title>Profissionais - Tertúlias Não Mónó</title>
+  </head>
+  <body>
+    <h1>Profissionais</h1>
+    {allProfessionals.length === 0 ? (
+      <p>Nenhum profissional encontrado.</p>
+    ) : (
+      <ul>
+        {allProfessionals.map((pro) => (
+          <li>
+            <h2>{pro.data.title}</h2>
+            <p><strong>Especialidade:</strong> {pro.data.role}</p>
+            <p><strong>Contacto:</strong> {pro.data.contact}</p>
+          </li>
+        ))}
+      </ul>
+    )}
+  </body>
+</html>

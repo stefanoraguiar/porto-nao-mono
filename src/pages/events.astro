@@ -1,0 +1,27 @@
+---
+import { getCollection } from 'astro:content';
+
+const allEvents = await getCollection('events');
+---
+
+<html lang="pt">
+  <head>
+    <meta charset="utf-8" />
+    <title>Eventos - Tertúlias Não Mónó</title>
+  </head>
+  <body>
+    <h1>Eventos</h1>
+    {allEvents.length === 0 ? (
+      <p>Nenhum evento agendado.</p>
+    ) : (
+      <ul>
+        {allEvents.map((event) => (
+          <li>
+            <h2>{event.data.title}</h2>
+            <p>📍 {event.data.location} | 📅 {event.data.eventDate.toLocaleDateString('pt-PT')}</p>
+          </li>
+        ))}
+      </ul>
+    )}
+  </body>
+</html>
