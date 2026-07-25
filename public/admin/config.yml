@@ -2,12 +2,11 @@ backend:
   name: git-gateway
   branch: main
 
-# Where uploaded images will be stored in your project
 media_folder: "public/images/uploads"
 public_folder: "/images/uploads"
 
 collections:
-  # 1. EVENTS COLLECTION
+  # 1. EVENTOS
   - name: "events"
     label: "Eventos"
     folder: "src/content/events"
@@ -19,7 +18,7 @@ collections:
       - { label: "Localização", name: "location", widget: "string" }
       - { label: "Descrição", name: "body", widget: "markdown", required: false }
 
-  # 2. ARTICLES COLLECTION
+  # 2. ARTIGOS
   - name: "articles"
     label: "Artigos"
     folder: "src/content/articles"
@@ -32,24 +31,24 @@ collections:
       - { label: "Imagem de Capa", name: "image", widget: "image", required: false }
       - { label: "Conteúdo", name: "body", widget: "markdown" }
 
-  # 3. PHOTO GALLERIES COLLECTION
+  # 3. GALERIA DE FOTOS (NON-TECH FRIENDLY)
   - name: "galleries"
     label: "Galeria de Fotos"
     folder: "src/content/galleries"
     create: true
-    slug: "{{year}}-{{month}}-{{slug}}"
+    slug: "{{slug}}"
     fields:
       - { label: "Título do Álbum", name: "title", widget: "string" }
-      - { label: "Data do Evento", name: "eventDate", widget: "datetime" }
+      - { label: "Data do Evento", name: "eventDate", widget: "date" }
       - { label: "Localização", name: "location", widget: "string", default: "Porto" }
       - label: "Fotografias"
         name: "photos"
         widget: "list"
-        fields:
-          - { label: "Imagem", name: "url", widget: "image" }
-          - { label: "Legenda", name: "caption", widget: "string", required: false }
+        required: false
+        hint: "Clica em 'Add' para selecionar fotos. Podes selecionar várias fotos de uma só vez na biblioteca de media!"
+        field: { label: "Fotografia", name: "url", widget: "image" }
 
-  # 4. PROFESSIONALS COLLECTION
+  # 4. PROFISSIONAIS
   - name: "professionals"
     label: "Profissionais"
     folder: "src/content/professionals"

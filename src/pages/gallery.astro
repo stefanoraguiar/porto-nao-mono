@@ -2,13 +2,46 @@
 // File: src/pages/gallery.astro
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import fs from 'fs';
+import path from 'path';
 
 const allGalleries = await getCollection('galleries');
 
-// Sort albums newest first
-const sortedGalleries = allGalleries.sort(
-  (a, b) => new Date(b.data.eventDate).getTime() - new Date(a.data.eventDate).getTime()
-);
+function getFolderPhotos(albumSlug: string, folderOverride?: string) {
+  const folderName = folderOverride || albumSlug;
+  const relPath = `/images/galleries/${folderName}`;
+  const fullPath = path.join(process.cwd(), 'public', relPath);
+
+  if (!fs.existsSync(fullPath)) return [];
+
+  const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif'];
+  const files = fs.readdirSync(fullPath);
+
+  return files
+    .filter((file) => validExtensions.includes(path.extname(file).toLowerCase()))
+    .map((file) => ({
+      url: `${relPath}/${file}`,
+      caption: '',
+    }));
+}
+
+const sortedGalleries = allGalleries
+  .sort((a, b) => new Date(b.data.eventDate).getTime() - new Date(a.data.eventDate).getTime())
+  .map((album) => {
+    const folderPhotos = getFolderPhotos(album.id, (album.data as any).folder);
+    
+    const rawManual = album.data.photos || [];
+    const manualPhotos = rawManual.map((p: any) => 
+      typeof p === 'string' ? { url: p, caption: '' } : { url: p.url || '', caption: p.caption || '' }
+    ).filter(p => p.url);
+
+    const allPhotos = folderPhotos.length > 0 ? folderPhotos : manualPhotos;
+
+    return {
+      ...album,
+      resolvedPhotos: allPhotos,
+    };
+  });
 ---
 
 <BaseLayout title="Galeria de Fotos">
@@ -30,7 +63,6 @@ const sortedGalleries = allGalleries.sort(
     <div class="space-y-14">
       {sortedGalleries.map((album) => (
         <section class="space-y-4">
-          <!-- DATE & EVENT HEADER (Google Photos Style) -->
           <div class="sticky top-16 z-30 bg-slate-50/95 backdrop-blur-md py-3 border-b border-slate-200 flex flex-wrap items-baseline justify-between gap-2">
             <div>
               <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
@@ -45,29 +77,28 @@ const sortedGalleries = allGalleries.sort(
             </span>
           </div>
 
-          <!-- PHOTO GRID -->
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
-            {album.data.photos.map((photo, index) => (
-              <div 
-                class="group relative aspect-square bg-slate-200 rounded-xl overflow-hidden cursor-pointer shadow-sm hover:shadow-md transition"
-                onclick={`openLightbox('${photo.url}', '${photo.caption.replace(/'/g, "\\'")}')`}
-              >
-                <img 
-                  src={photo.url} 
-                  alt={photo.caption || album.data.title}
-                  loading="lazy"
-                  class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                />
-                
-                <!-- Hover Overlay -->
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex items-end p-3">
-                  <p class="text-white text-xs font-medium line-clamp-2">
-                    {photo.caption || "Ver foto"}
-                  </p>
+          {album.resolvedPhotos.length === 0 ? (
+            <p class="text-xs text-slate-400 italic">Nenhuma fotografia carregada neste álbum ainda.</p>
+          ) : (
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+              {album.resolvedPhotos.map((photo) => (
+                <div 
+                  class="group relative aspect-square bg-slate-200 rounded-xl overflow-hidden cursor-pointer shadow-sm hover:shadow-md transition"
+                  onclick={`openLightbox('${photo.url}', '${(photo.caption || '').replace(/'/g, "\\'")}')`}
+                >
+                  <img 
+                    src={photo.url} 
+                    alt={album.data.title}
+                    loading="lazy"
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex items-end p-3">
+                    <p class="text-white text-xs font-medium">Ver em tamanho grande 🔍</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
       ))}
     </div>
@@ -79,7 +110,6 @@ const sortedGalleries = allGalleries.sort(
     class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex flex-col items-center justify-between p-4 md:p-8"
     onclick="closeLightbox()"
   >
-    <!-- Close Button -->
     <div class="w-full flex justify-end">
       <button 
         class="text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm font-bold transition"
@@ -89,7 +119,6 @@ const sortedGalleries = allGalleries.sort(
       </button>
     </div>
 
-    <!-- Image Container -->
     <div class="my-auto max-w-5xl max-h-[80vh] flex flex-col items-center" onclick="event.stopPropagation()">
       <img id="lightbox-img" src="" alt="" class="max-h-[75vh] w-auto object-contain rounded-lg shadow-2xl" />
       <p id="lightbox-caption" class="text-white/90 text-sm mt-4 text-center font-medium bg-slate-900/60 px-4 py-2 rounded-lg"></p>
@@ -117,7 +146,6 @@ const sortedGalleries = allGalleries.sort(
     document.body.style.overflow = 'auto';
   }
 
-  // Close on Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeLightbox();
   });
