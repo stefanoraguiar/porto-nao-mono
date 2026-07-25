@@ -1,0 +1,40 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+collections:
+  - name: "articles"
+    label: "Articles"
+    folder: "src/content/articles"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - { label: "Author", name: "author", widget: "string" }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "events"
+    label: "Events"
+    folder: "src/content/events"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Event Title", name: "title", widget: "string" }
+      - { label: "Event Date", name: "eventDate", widget: "datetime" }
+      - { label: "Location", name: "location", widget: "string" }
+      - { label: "Description", name: "body", widget: "markdown" }
+
+  - name: "professionals"
+    label: "Professionals"
+    folder: "src/content/professionals"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Name / Title", name: "title", widget: "string" }
+      - { label: "Specialty / Role", name: "role", widget: "string" }
+      - { label: "Contact Info / Link", name: "contact", widget: "string" }
+      - { label: "Bio", name: "body", widget: "markdown" }
