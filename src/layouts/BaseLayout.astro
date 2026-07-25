@@ -1,0 +1,81 @@
+---
+// File: src/layouts/BaseLayout.astro
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!text/html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} | Tertúlias Não Mónó</title>
+    <!-- Simple default styling to make it clean -->
+    <style is:global>
+      :root {
+        --primary: #4f46e5;
+        --bg: #f9fafb;
+        --text: #1f2937;
+      }
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1rem 2rem;
+        background-color: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+      header nav {
+        display: flex;
+        gap: 1.5rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e5e7eb;
+        margin-bottom: 2rem;
+      }
+      header nav a {
+        text-decoration: none;
+        color: var(--text);
+        font-weight: 600;
+      }
+      header nav a:hover {
+        color: var(--primary);
+      }
+      header nav a.admin-link {
+        margin-left: auto;
+        color: var(--primary);
+      }
+      footer {
+        margin-top: 3rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+        font-size: 0.875rem;
+        color: #6b7280;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="/">Início</a>
+        <a href="/articles">Artigos</a>
+        <a href="/events">Eventos</a>
+        <a href="/professionals">Profissionais</a>
+        <a href="/admin" class="admin-link">Área de Contribuidores →</a>
+      </nav>
+    </header>
+
+    <main>
+      <!-- Page content will be injected here -->
+      <slot />
+    </main>
+
+    <footer>
+      <p>&copy; {new Date().getFullYear()} Tertúlias Não Mónó. Todos os direitos reservados.</p>
+    </footer>
+  </body>
+</html>

@@ -1,32 +1,22 @@
 ---
-// File: src/pages/articles/index.astro
 import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const allArticles = await getCollection('articles');
 ---
 
-<html lang="pt">
-  <head>
-    <meta charset="utf-8" />
-    <title>Artigos - Tertúlias Não Mónó</title>
-  </head>
-  <body>
-    <h1>Artigos</h1>
-
-    {allArticles.length === 0 ? (
-      <p>Nenhum artigo encontrado.</p>
-    ) : (
-      <ul>
-        {allArticles.map((article) => (
-          <li>
-            <h2>
-              <!-- Clicking this links to the single article page -->
-              <a href={`/articles/${article.id}`}>{article.data.title}</a>
-            </h2>
-            <p><small>Por {article.data.author} em {article.data.date.toLocaleDateString('pt-PT')}</small></p>
-          </li>
-        ))}
-      </ul>
-    )}
-  </body>
-</html>
+<BaseLayout title="Artigos">
+  <h1>Artigos</h1>
+  {allArticles.length === 0 ? (
+    <p>Nenhum artigo encontrado.</p>
+  ) : (
+    <ul>
+      {allArticles.map((article) => (
+        <li>
+          <h2><a href={`/articles/${article.id}`}>{article.data.title}</a></h2>
+          <p><small>Por {article.data.author} em {article.data.date.toLocaleDateString('pt-PT')}</small></p>
+        </li>
+      ))}
+    </ul>
+  )}
+</BaseLayout>
