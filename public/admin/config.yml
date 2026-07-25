@@ -1,5 +1,6 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: stefanoaguiar/porto-nao-mono # Replace with your GitHub username/repo-name
   branch: main
 
 media_folder: "public/images/uploads"
@@ -31,7 +32,7 @@ collections:
       - { label: "Imagem de Capa", name: "image", widget: "image", required: false }
       - { label: "Conteúdo", name: "body", widget: "markdown" }
 
-  # 3. GALERIA DE FOTOS (NATIVE MULTI-IMAGE BATCH UPLOAD)
+  # 3. GALERIA DE FOTOS
   - name: "galleries"
     label: "Galeria de Fotos"
     folder: "src/content/galleries"
@@ -39,7 +40,7 @@ collections:
     slug: "{{slug}}"
     fields:
       - { label: "Título do Álbum", name: "title", widget: "string" }
-      - { label: "Data do Evento", name: "eventDate", widget: "date" }
+      - { label: "Data do Evento", name: "eventDate", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false }
       - { label: "Localização", name: "location", widget: "string", default: "Porto" }
       - label: "Fotografias"
         name: "photos"
