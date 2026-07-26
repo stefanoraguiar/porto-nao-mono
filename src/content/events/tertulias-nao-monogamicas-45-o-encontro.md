@@ -2,6 +2,10 @@
 title: "Tertúlias Não-Monogâmicas — 45.º Encontro"
 eventDate: 2026-05-21T18:00:00.000Z
 location: "A anunciar"
+tags:
+  - "Tertúlia"
+external: false
+approved: true
 ---
 
 ✨ Tema Livre

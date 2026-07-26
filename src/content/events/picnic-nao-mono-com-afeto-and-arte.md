@@ -2,6 +2,11 @@
 title: "Picnic Não-Mono com Afeto & Arte"
 eventDate: 2026-05-03T14:00:00.000Z
 location: "A anunciar"
+tags:
+  - "Picnic"
+  - "Família"
+external: false
+approved: true
 ---
 
 Pensa numa tarde onde o sol ainda aquece, onde as crianças correm livres e os adultos respiram fundo. Onde não há julgamentos sobre como se ama, como se cria, como se é família.

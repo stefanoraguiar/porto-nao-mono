@@ -1,0 +1,42 @@
+---
+title: Picnic PNM
+eventDate: 2026-07-25
+location: Porto
+photos:
+  - /images/uploads/2026-07-25-PicNicPNM_001.webp
+  - /images/uploads/2026-07-25-PicNicPNM_002.webp
+  - /images/uploads/2026-07-25-PicNicPNM_003.webp
+  - /images/uploads/2026-07-25-PicNicPNM_004.webp
+  - /images/uploads/2026-07-25-PicNicPNM_005.webp
+  - /images/uploads/2026-07-25-PicNicPNM_006.webp
+  - /images/uploads/2026-07-25-PicNicPNM_007.webp
+  - /images/uploads/2026-07-25-PicNicPNM_008.webp
+  - /images/uploads/2026-07-25-PicNicPNM_009.webp
+  - /images/uploads/2026-07-25-PicNicPNM_010.webp
+  - /images/uploads/2026-07-25-PicNicPNM_011.webp
+  - /images/uploads/2026-07-25-PicNicPNM_012.webp
+  - /images/uploads/2026-07-25-PicNicPNM_013.webp
+  - /images/uploads/2026-07-25-PicNicPNM_014.webp
+  - /images/uploads/2026-07-25-PicNicPNM_015.webp
+  - /images/uploads/2026-07-25-PicNicPNM_016.webp
+  - /images/uploads/2026-07-25-PicNicPNM_017.webp
+  - /images/uploads/2026-07-25-PicNicPNM_018.webp
+  - /images/uploads/2026-07-25-PicNicPNM_019.webp
+  - /images/uploads/2026-07-25-PicNicPNM_020.webp
+  - /images/uploads/2026-07-25-PicNicPNM_021.webp
+  - /images/uploads/2026-07-25-PicNicPNM_022.webp
+  - /images/uploads/2026-07-25-PicNicPNM_023.webp
+  - /images/uploads/2026-07-25-PicNicPNM_024.webp
+  - /images/uploads/2026-07-25-PicNicPNM_025.webp
+  - /images/uploads/2026-07-25-PicNicPNM_026.webp
+  - /images/uploads/2026-07-25-PicNicPNM_027.webp
+  - /images/uploads/2026-07-25-PicNicPNM_028.webp
+  - /images/uploads/2026-07-25-PicNicPNM_029.webp
+  - /images/uploads/2026-07-25-PicNicPNM_030.webp
+  - /images/uploads/2026-07-25-PicNicPNM_031.webp
+  - /images/uploads/2026-07-25-PicNicPNM_032.webp
+  - /images/uploads/2026-07-25-PicNicPNM_033.webp
+  - /images/uploads/2026-07-25-PicNicPNM_034.webp
+  - /images/uploads/2026-07-25-PicNicPNM_035.webp
+  - /images/uploads/2026-07-25-PicNicPNM_036.webp
+---

@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const team = [
+  {
+    name: 'Stefano Aguiar',
+    role: 'Webmaster e criativo',
+    description:
+      'Stefano faz parte da comunidade há muitos anos e não sossega nunca. Sempre a criar algo novo e a propor atividades, é o responsável pelo nosso website.',
+    image: '/images/retrato_StefanoAguiar.webp',
+  },
+];
+---
+
+<BaseLayout title="Quem Somos">
+  <div class="mb-10 max-w-2xl">
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Quem Somos</h1>
+    <p class="text-slate-600 mt-2 leading-relaxed">
+      As faces por detrás das tertúlias — pessoas que cuidam, organizam e mantêm viva esta comunidade.
+    </p>
+  </div>
+
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    {team.map((person) => (
+      <article class="flex flex-col items-start gap-4">
+        <div class="w-full aspect-square overflow-hidden rounded-2xl bg-slate-200 shadow-sm">
+          <img
+            src={person.image}
+            alt={`Retrato de ${person.name}`}
+            class="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div class="space-y-1.5">
+          <h2 class="text-xl font-bold text-slate-900 leading-snug">{person.name}</h2>
+          <p class="text-sm font-semibold text-rose-700">{person.role}</p>
+          <p class="text-sm text-slate-600 leading-relaxed pt-1">{person.description}</p>
+        </div>
+      </article>
+    ))}
+  </div>
+</BaseLayout>

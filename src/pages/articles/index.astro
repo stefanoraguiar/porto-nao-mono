@@ -2,34 +2,187 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
-const allArticles = await getCollection('articles');
+const EXCERPT_WORD_COUNT = 40;
+
+function stripMarkdown(text: string) {
+  return text
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/[*_~`#>]+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function excerptFromBody(body: string, wordCount = EXCERPT_WORD_COUNT) {
+  const firstParagraph =
+    body
+      .trim()
+      .split(/\n\s*\n/)
+      .map((block) => stripMarkdown(block))
+      .find((block) => block.length > 0) ?? '';
+
+  const words = firstParagraph.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return '';
+  if (words.length <= wordCount) return firstParagraph;
+  return `${words.slice(0, wordCount).join(' ')}...`;
+}
+
+const articles = (await getCollection('articles'))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .map((article) => ({
+    ...article,
+    excerpt: excerptFromBody(article.body ?? ''),
+  }));
 ---
 
 <BaseLayout title="Artigos">
-  <div class="mb-8">
-    <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Artigos</h1>
-    <p class="text-slate-600 mt-1">Explora as nossas publicações e reflexões comunitárias.</p>
+  <div class="mb-8 max-w-2xl">
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Artigos</h1>
+    <p class="text-slate-600 mt-2 leading-relaxed">
+      Publicações e reflexões partilhadas pela nossa comunidade.
+    </p>
   </div>
 
-  {allArticles.length === 0 ? (
+  {articles.length === 0 ? (
     <p class="text-slate-500 italic">Nenhum artigo encontrado.</p>
   ) : (
-    <div class="grid gap-6 md:grid-cols-2">
-      {allArticles.map((article) => (
-        <a 
-          href={`/articles/${article.id}`} 
-          class="block bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition"
-        >
-          <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Artigo</span>
-          <h2 class="text-xl font-bold text-slate-900 mt-2 mb-3 leading-snug">
-            {article.data.title}
-          </h2>
-          <div class="text-xs text-slate-500 flex items-center justify-between">
-            <span>Por {article.data.author}</span>
-            <time>{article.data.date.toLocaleDateString('pt-PT')}</time>
-          </div>
-        </a>
-      ))}
+    <div>
+      <div class="mb-6">
+        <label for="article-search" class="sr-only">Pesquisar artigos</label>
+        <div class="relative">
+          <svg
+            class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m1.6-5.4a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
+          </svg>
+          <input
+            id="article-search"
+            type="search"
+            placeholder="Pesquisar por título, autor ou texto…"
+            autocomplete="off"
+            class="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm text-slate-800 placeholder:text-slate-400 shadow-sm outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200 transition"
+          />
+        </div>
+        <p id="article-search-status" class="mt-2 text-xs text-slate-500" aria-live="polite"></p>
+      </div>
+
+      <ul id="article-list" class="divide-y divide-slate-200 border-y border-slate-200">
+        {articles.map((article) => {
+          const searchText = [
+            article.data.title,
+            article.data.author,
+            article.excerpt,
+          ]
+            .filter(Boolean)
+            .join(' ')
+            .normalize('NFD')
+            .replace(/\p{M}/gu, '')
+            .toLocaleLowerCase('pt');
+
+          return (
+            <li data-search={searchText}>
+              <a
+                href={`/articles/${article.id}`}
+                class="group flex flex-col sm:flex-row gap-5 py-7 hover:bg-white/60 transition px-1 sm:px-2 -mx-1 sm:-mx-2 rounded-lg"
+              >
+                {article.data.image && (
+                  <div class="sm:w-40 sm:shrink-0 aspect-[16/10] sm:aspect-square overflow-hidden rounded-xl bg-slate-100">
+                    <img
+                      src={article.data.image}
+                      alt=""
+                      class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+
+                <div class="min-w-0 flex-1 space-y-2">
+                  <h2 class="text-xl font-bold text-slate-900 group-hover:text-purple-700 transition leading-snug">
+                    {article.data.title}
+                  </h2>
+
+                  {article.excerpt && (
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                      {article.excerpt}
+                    </p>
+                  )}
+
+                  <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 pt-1">
+                    <span>Por {article.data.author}</span>
+                    <span aria-hidden="true">·</span>
+                    <time datetime={article.data.date.toISOString()}>
+                      {article.data.date.toLocaleDateString('pt-PT', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </time>
+                  </div>
+                </div>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+
+      <p id="article-search-empty" class="hidden py-10 text-center text-sm text-slate-500 italic">
+        Nenhum artigo corresponde à tua pesquisa.
+      </p>
     </div>
   )}
 </BaseLayout>
+
+<script>
+  const input = document.getElementById('article-search') as HTMLInputElement | null;
+  const list = document.getElementById('article-list');
+  const empty = document.getElementById('article-search-empty');
+  const status = document.getElementById('article-search-status');
+
+  const normalize = (value: string) =>
+    value
+      .normalize('NFD')
+      .replace(/\p{M}/gu, '')
+      .toLocaleLowerCase('pt');
+
+  if (input && list) {
+    const items = Array.from(list.querySelectorAll<HTMLElement>(':scope > li'));
+    const total = items.length;
+
+    const updateStatus = (visible: number, query: string) => {
+      if (!status) return;
+      if (!query) {
+        status.textContent = '';
+        return;
+      }
+      status.textContent =
+        visible === 1
+          ? `1 artigo encontrado`
+          : `${visible} artigos encontrados`;
+    };
+
+    const filter = () => {
+      const query = normalize(input.value.trim());
+      let visible = 0;
+
+      for (const item of items) {
+        const haystack = item.dataset.search ?? '';
+        const match = !query || haystack.includes(query);
+        item.hidden = !match;
+        if (match) visible += 1;
+      }
+
+      if (empty) empty.classList.toggle('hidden', visible > 0 || total === 0);
+      list.classList.toggle('hidden', visible === 0);
+      updateStatus(visible, query);
+    };
+
+    input.addEventListener('input', filter);
+  }
+</script>
+

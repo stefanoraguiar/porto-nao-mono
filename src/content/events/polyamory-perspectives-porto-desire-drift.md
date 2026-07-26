@@ -2,6 +2,11 @@
 title: "Polyamory Perspectives Porto - Desire Drift"
 eventDate: 2026-04-22T18:00:00.000Z
 location: "A anunciar"
+tags:
+  - "Discussão"
+  - "Parceria"
+external: true
+approved: true
 ---
 
 Welcome to the 2nd meeting of the 3rd Season of Polyamory Perspectives Porto.

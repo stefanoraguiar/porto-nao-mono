@@ -2,6 +2,10 @@
 title: "Tertúlias Não-Monogâmicas — 42.º Encontro "
 eventDate: 2026-04-09T18:00:00.000Z
 location: "A anunciar"
+tags:
+  - "Tertúlia"
+external: false
+approved: true
 ---
 
 ✨ Estilos de Amor e Estilos de Não-Monogamia Ética

@@ -18,6 +18,12 @@ const events = defineCollection({
     title: z.string().default('Sem Título'),
     eventDate: z.coerce.date().default(() => new Date()),
     location: z.string().default('A anunciar'),
+    tags: z.array(z.string()).optional().default([]),
+    photosUrl: z.string().optional().default(''),
+    external: z.boolean().optional().default(false),
+    approved: z.boolean().optional().default(true),
+    suggestedBy: z.string().optional().default(''),
+    suggestedEmail: z.string().optional().default(''),
   }),
 });
 
@@ -26,8 +32,15 @@ const professionals = defineCollection({
   schema: z.object({
     title: z.string().default('Sem Título'),
     role: z.string().default('Profissional'),
-    contact: z.string().nullable().optional().default('N/A'),
+    areas: z.array(z.string()).optional().default([]),
+    contact: z.string().nullable().optional().default(''),
+    website: z.string().optional().default(''),
+    location: z.string().optional().default(''),
     image: z.string().nullable().optional().default(''),
+    community: z.boolean().optional().default(false),
+    approved: z.boolean().optional().default(true),
+    suggestedBy: z.string().optional().default(''),
+    suggestedEmail: z.string().optional().default(''),
   }),
 });
 

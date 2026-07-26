@@ -13,7 +13,13 @@ const { title } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title} | Porto Não-Monogâmico</title>
-  
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#7c3aed" />
+
     <style is:global>
         @import "tailwindcss";
     </style>
@@ -25,19 +31,32 @@ const { title } = Astro.props;
       <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
         <!-- Site Logo / Brand -->
-        <a href="/" class="font-bold text-lg text-indigo-900 hover:text-indigo-600 transition">
-          Tertúlias Não Mónó
+        <a href="/" class="flex items-center gap-2.5 min-w-0 group">
+          <img
+            src="/images/PNM_logo.png"
+            alt=""
+            width="40"
+            height="40"
+            class="h-9 w-9 sm:h-10 sm:w-10 rounded-lg object-cover shrink-0 shadow-sm ring-1 ring-black/10"
+          />
+          <span class="font-bold text-base sm:text-lg text-indigo-900 group-hover:text-indigo-600 transition truncate">
+            Porto Não-Monogâmico
+          </span>
         </a>
 
         <!-- Navigation Links -->
-            <nav class="flex items-center gap-6 text-sm font-medium text-slate-600">
-              <a href="/articles" class="hover:text-indigo-600 transition">Artigos</a>
-              <a href="/events" class="hover:text-indigo-600 transition">Eventos</a>
-              <a href="/gallery" class="hover:text-indigo-600 transition">Galeria</a>
-              <a href="/professionals" class="hover:text-indigo-600 transition">Profissionais</a>
-            </nav>
+        <nav class="flex items-center gap-3 sm:gap-5 text-sm font-medium text-slate-600">
+          <a href="/quem-somos" class="hover:text-indigo-600 transition">Quem Somos</a>
+          <a href="/articles" class="hover:text-indigo-600 transition">Artigos</a>
+          <a href="/events" class="hover:text-indigo-600 transition">Eventos</a>
+          <a href="/gallery" class="hover:text-indigo-600 transition">Galeria</a>
+          <a href="/professionals" class="hover:text-indigo-600 transition">Profissionais</a>
+        </nav>
       </div>
     </header>
+
+    <!-- Optional full-bleed hero (e.g. home page) -->
+    <slot name="hero" />
 
     <!-- Main Content Container -->
     <main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -46,8 +65,14 @@ const { title } = Astro.props;
 
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 mt-auto py-8">
-      <div class="max-w-5xl mx-auto px-4 text-center text-xs text-slate-500">
-        <p>&copy; {new Date().getFullYear()} Tertúlias Não Mónó. Um espaço de diálogo e partilha comunitária.</p>
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+        <p>&copy; {new Date().getFullYear()} Porto Não-Monogâmico. Um espaço de diálogo e partilha comunitária.</p>
+        <a
+          href="/admin/"
+          class="text-slate-400 hover:text-indigo-600 transition underline-offset-2 hover:underline"
+        >
+          Área de gestão
+        </a>
       </div>
     </footer>
 

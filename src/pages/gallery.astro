@@ -25,23 +25,35 @@ function getFolderPhotos(albumSlug: string, folderOverride?: string) {
     }));
 }
 
+let globalPhotoIndex = 0;
+
 const sortedGalleries = allGalleries
   .sort((a, b) => new Date(b.data.eventDate).getTime() - new Date(a.data.eventDate).getTime())
   .map((album) => {
     const folderPhotos = getFolderPhotos(album.id, (album.data as any).folder);
-    
     const rawManual = album.data.photos || [];
-    const manualPhotos = rawManual.map((p: any) => 
-      typeof p === 'string' ? { url: p, caption: '' } : { url: p.url || '', caption: p.caption || '' }
-    ).filter(p => p.url);
+    const manualPhotos = rawManual
+      .map((p: any) => (typeof p === 'string' ? { url: p, caption: '' } : { url: p.url || '', caption: p.caption || '' }))
+      .filter((p) => p.url);
 
-    const allPhotos = folderPhotos.length > 0 ? folderPhotos : manualPhotos;
+    const basePhotos = folderPhotos.length > 0 ? folderPhotos : manualPhotos;
+
+    const resolvedPhotos = basePhotos.map((photo) => {
+      const index = globalPhotoIndex++;
+      return {
+        ...photo,
+        globalIndex: index,
+        albumTitle: album.data.title,
+      };
+    });
 
     return {
       ...album,
-      resolvedPhotos: allPhotos,
+      resolvedPhotos,
     };
   });
+
+const flatPhotos = sortedGalleries.flatMap((album) => album.resolvedPhotos);
 ---
 
 <BaseLayout title="Galeria de Fotos">
@@ -63,6 +75,7 @@ const sortedGalleries = allGalleries
     <div class="space-y-14">
       {sortedGalleries.map((album) => (
         <section class="space-y-4">
+          <!-- DATE & EVENT HEADER -->
           <div class="sticky top-16 z-30 bg-slate-50/95 backdrop-blur-md py-3 border-b border-slate-200 flex flex-wrap items-baseline justify-between gap-2">
             <div>
               <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
@@ -77,14 +90,17 @@ const sortedGalleries = allGalleries
             </span>
           </div>
 
+          <!-- PHOTO GRID -->
           {album.resolvedPhotos.length === 0 ? (
             <p class="text-xs text-slate-400 italic">Nenhuma fotografia carregada neste álbum ainda.</p>
           ) : (
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
               {album.resolvedPhotos.map((photo) => (
                 <div 
-                  class="group relative aspect-square bg-slate-200 rounded-xl overflow-hidden cursor-pointer shadow-sm hover:shadow-md transition"
-                  onclick={`openLightbox('${photo.url}', '${(photo.caption || '').replace(/'/g, "\\'")}')`}
+                  id={`photo-card-${photo.globalIndex}`}
+                  data-photo-url={photo.url}
+                  class="photo-card group relative aspect-square bg-slate-200 rounded-xl overflow-hidden cursor-pointer shadow-sm hover:shadow-md transition"
+                  onclick={`openLightbox(${photo.globalIndex})`}
                 >
                   <img 
                     src={photo.url} 
@@ -92,8 +108,10 @@ const sortedGalleries = allGalleries
                     loading="lazy"
                     class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                   />
-                  <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex items-end p-3">
-                    <p class="text-white text-xs font-medium">Ver em tamanho grande 🔍</p>
+                  <div class="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex items-end p-3">
+                    <p class="text-white text-xs font-medium truncate">
+                      {photo.caption || "Ver foto 🔍"}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -107,46 +125,367 @@ const sortedGalleries = allGalleries
   <!-- LIGHTBOX MODAL -->
   <div 
     id="lightbox" 
-    class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex flex-col items-center justify-between p-4 md:p-8"
+    class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col justify-between p-4 sm:p-6 text-white select-none"
     onclick="closeLightbox()"
   >
-    <div class="w-full flex justify-end">
+    <!-- TOP TOOLBAR: Counter + Actions + EMERGENCY BUTTON -->
+    <div class="w-full flex items-center justify-between z-10 gap-2 flex-wrap" onclick="event.stopPropagation()">
+      <div class="text-xs sm:text-sm font-medium text-slate-300">
+        <span id="lightbox-counter" class="bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">1 / 1</span>
+      </div>
+
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- EMERGENCY REMOVAL BUTTON -->
+        <button 
+          id="lightbox-removal-btn"
+          type="button"
+          class="p-2 sm:px-3 sm:py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white transition flex items-center gap-1.5 text-xs font-bold shadow-lg shadow-red-900/40 animate-pulse hover:animate-none"
+          title="Remover esta foto do álbum"
+          onclick="openRemovalModal(event)"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <span class="hidden sm:inline">Remover esta foto</span>
+        </button>
+
+        <!-- Download Button -->
+        <a 
+          id="lightbox-download-btn"
+          href="#"
+          download
+          target="_blank"
+          rel="noopener noreferrer"
+          class="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition flex items-center gap-1.5 text-xs font-semibold"
+          title="Descarregar foto"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span class="hidden sm:inline">Descarregar</span>
+        </a>
+
+        <!-- Share Button -->
+        <button 
+          id="lightbox-share-btn"
+          type="button"
+          class="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition flex items-center gap-1.5 text-xs font-semibold"
+          title="Partilhar foto"
+          onclick="shareCurrentPhoto(event)"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+          <span class="hidden sm:inline">Partilhar</span>
+        </button>
+
+        <!-- Close Button -->
+        <button 
+          type="button"
+          class="p-2.5 rounded-xl bg-white/10 hover:bg-red-500/80 transition flex items-center gap-1.5 text-xs font-semibold ml-1"
+          title="Fechar (Esc)"
+          onclick="closeLightbox()"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          <span class="hidden sm:inline">Fechar</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN VIEWPORT -->
+    <div class="relative flex-1 flex items-center justify-between my-2 overflow-hidden">
+      <!-- Back Button -->
       <button 
-        class="text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm font-bold transition"
-        onclick="closeLightbox()"
+        type="button"
+        class="absolute left-2 sm:left-4 z-20 p-3 rounded-full bg-slate-900/70 hover:bg-slate-900/90 text-white transition backdrop-blur-sm border border-white/10"
+        onclick="event.stopPropagation(); prevPhoto()"
+        title="Anterior (Seta Esquerda)"
       >
-        ✕ Fechar (Esc)
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+
+      <!-- Active Photo Container -->
+      <div class="mx-auto max-h-[80vh] flex flex-col items-center justify-center p-2" onclick="event.stopPropagation()">
+        <img id="lightbox-img" src="" alt="" class="max-h-[72vh] max-w-full object-contain rounded-lg shadow-2xl transition-all duration-200" />
+        <p id="lightbox-caption" class="text-slate-200 text-xs sm:text-sm mt-3 text-center font-medium bg-slate-900/80 px-4 py-2 rounded-xl backdrop-blur-sm max-w-xl"></p>
+      </div>
+
+      <!-- Forward Button -->
+      <button 
+        type="button"
+        class="absolute right-2 sm:right-4 z-20 p-3 rounded-full bg-slate-900/70 hover:bg-slate-900/90 text-white transition backdrop-blur-sm border border-white/10"
+        onclick="event.stopPropagation(); nextPhoto()"
+        title="Seguinte (Seta Direita)"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
       </button>
     </div>
 
-    <div class="my-auto max-w-5xl max-h-[80vh] flex flex-col items-center" onclick="event.stopPropagation()">
-      <img id="lightbox-img" src="" alt="" class="max-h-[75vh] w-auto object-contain rounded-lg shadow-2xl" />
-      <p id="lightbox-caption" class="text-white/90 text-sm mt-4 text-center font-medium bg-slate-900/60 px-4 py-2 rounded-lg"></p>
+    <!-- FOOTER KEYBOARD GUIDE -->
+    <div class="text-center text-[11px] text-slate-400">
+      Usa as setas <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-300">←</kbd> <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-300">→</kbd> para navegar, ou <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-300">Esc</kbd> para fechar.
     </div>
+  </div>
 
-    <div></div>
+  <!-- EMERGENCY REMOVAL MODAL -->
+  <div 
+    id="removal-modal" 
+    class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4"
+    onclick="closeRemovalModal()"
+  >
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 text-slate-900 shadow-2xl border border-red-100" onclick="event.stopPropagation()">
+      <div class="flex items-center gap-3 text-red-600 mb-3">
+        <div class="p-2 bg-red-100 rounded-xl">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <h3 class="text-lg font-bold">Solicitar Remoção de Fotografia</h3>
+      </div>
+
+      <p class="text-xs text-slate-600 mb-4">
+        Respeitamos a tua privacidade. Ao submeter este pedido, a fotografia será <strong>ocultada imediatamente</strong> do álbum.
+      </p>
+
+      <form id="removal-form" name="photo-removal" method="POST" data-netlify="true" onsubmit="handleRemovalSubmit(event)">
+        <input type="hidden" name="form-name" value="photo-removal" />
+        <input type="hidden" id="removal-photo-url" name="photoUrl" value="" />
+        <input type="hidden" id="removal-album-title" name="albumTitle" value="" />
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">O teu Nome *</label>
+            <input 
+              type="text" 
+              name="name" 
+              required 
+              placeholder="Ex: Maria Silva" 
+              class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">O teu E-mail *</label>
+            <input 
+              type="email" 
+              name="email" 
+              required 
+              placeholder="exemplo@email.com" 
+              class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Motivo do Pedido *</label>
+            <textarea 
+              name="reason" 
+              rows="3" 
+              required 
+              placeholder="Por favor, indica brevemente o motivo da remoção..." 
+              class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:outline-none resize-none"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="mt-6 flex items-center justify-end gap-2">
+          <button 
+            type="button" 
+            class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition"
+            onclick="closeRemovalModal()"
+          >
+            Cancelar
+          </button>
+          <button 
+            type="submit" 
+            class="px-5 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-md shadow-red-600/30"
+          >
+            Remover Fotografia
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </BaseLayout>
 
-<script is:inline>
-  function openLightbox(url, caption) {
-    const lightbox = document.getElementById('lightbox');
-    const img = document.getElementById('lightbox-img');
-    const captionEl = document.getElementById('lightbox-caption');
-    
-    img.src = url;
-    captionEl.textContent = caption || '';
-    lightbox.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
+<script define:vars={{ flatPhotos }}>
+  let currentIndex = 0;
+  let activeFlatPhotos = [...flatPhotos];
+
+  // Hide photos previously flagged for removal in localStorage
+  function initHiddenPhotos() {
+    const hidden = JSON.parse(localStorage.getItem('hiddenPhotos') || '[]');
+    if (hidden.length > 0) {
+      activeFlatPhotos = activeFlatPhotos.filter(p => !hidden.includes(p.url));
+      
+      // Hide corresponding photo cards from grid
+      document.querySelectorAll('.photo-card').forEach(card => {
+        const url = card.getAttribute('data-photo-url');
+        if (hidden.includes(url)) {
+          card.style.display = 'none';
+        }
+      });
+    }
   }
 
-  function closeLightbox() {
+  function updateLightbox() {
+    if (activeFlatPhotos.length === 0) {
+      window.closeLightbox();
+      return;
+    }
+
+    const photo = activeFlatPhotos[currentIndex];
+    if (!photo) return;
+
+    const img = document.getElementById('lightbox-img');
+    const caption = document.getElementById('lightbox-caption');
+    const counter = document.getElementById('lightbox-counter');
+    const downloadBtn = document.getElementById('lightbox-download-btn');
+
+    img.src = photo.url;
+    img.alt = photo.caption || photo.albumTitle || 'Fotografia';
+
+    if (photo.caption) {
+      caption.textContent = `${photo.albumTitle} — ${photo.caption}`;
+      caption.classList.remove('hidden');
+    } else if (photo.albumTitle) {
+      caption.textContent = photo.albumTitle;
+      caption.classList.remove('hidden');
+    } else {
+      caption.classList.add('hidden');
+    }
+
+    counter.textContent = `${currentIndex + 1} / ${activeFlatPhotos.length}`;
+    downloadBtn.href = photo.url;
+    
+    const fileName = photo.url.split('/').pop() || 'fotografia.jpg';
+    downloadBtn.setAttribute('download', fileName);
+  }
+
+  window.openLightbox = function(globalIndex) {
+    const foundIndex = activeFlatPhotos.findIndex(p => p.globalIndex === globalIndex);
+    if (foundIndex === -1) return;
+
+    currentIndex = foundIndex;
+    updateLightbox();
+    const lightbox = document.getElementById('lightbox');
+    lightbox.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeLightbox = function() {
     const lightbox = document.getElementById('lightbox');
     lightbox.classList.add('hidden');
     document.body.style.overflow = 'auto';
-  }
+  };
 
+  window.nextPhoto = function() {
+    if (activeFlatPhotos.length === 0) return;
+    currentIndex = (currentIndex + 1) % activeFlatPhotos.length;
+    updateLightbox();
+  };
+
+  window.prevPhoto = function() {
+    if (activeFlatPhotos.length === 0) return;
+    currentIndex = (currentIndex - 1 + activeFlatPhotos.length) % activeFlatPhotos.length;
+    updateLightbox();
+  };
+
+  window.shareCurrentPhoto = async function(e) {
+    e.stopPropagation();
+    const photo = activeFlatPhotos[currentIndex];
+    if (!photo) return;
+
+    const shareUrl = window.location.origin + photo.url;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: photo.albumTitle || 'Galeria de Fotos',
+          text: photo.caption || 'Fotografia da comunidade Tertúlias Não Mónó',
+          url: shareUrl,
+        });
+      } catch (err) {}
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        alert('Link da fotografia copiado para a área de transferência!');
+      } catch (err) {
+        alert('Não foi possível copiar o link.');
+      }
+    }
+  };
+
+  // REMOVAL MODAL LOGIC
+  window.openRemovalModal = function(e) {
+    e.stopPropagation();
+    const photo = activeFlatPhotos[currentIndex];
+    if (!photo) return;
+
+    document.getElementById('removal-photo-url').value = photo.url;
+    document.getElementById('removal-album-title').value = photo.albumTitle || '';
+
+    const modal = document.getElementById('removal-modal');
+    modal.classList.remove('hidden');
+  };
+
+  window.closeRemovalModal = function() {
+    const modal = document.getElementById('removal-modal');
+    modal.classList.add('hidden');
+  };
+
+  window.handleRemovalSubmit = function(e) {
+    e.preventDefault();
+    const photo = activeFlatPhotos[currentIndex];
+    if (!photo) return;
+
+    const form = e.target;
+    const formData = new FormData(form);
+
+    // 1. Submit to Netlify Forms via background fetch
+    fetch('/', {
+      method: 'POST',
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(formData).toString()
+    }).catch(() => {});
+
+    // 2. Save photo URL into localStorage hidden list
+    const hidden = JSON.parse(localStorage.getItem('hiddenPhotos') || '[]');
+    if (!hidden.includes(photo.url)) {
+      hidden.push(photo.url);
+      localStorage.setItem('hiddenPhotos', JSON.stringify(hidden));
+    }
+
+    // 3. Immediately hide photo from DOM grid
+    document.querySelectorAll('.photo-card').forEach(card => {
+      if (card.getAttribute('data-photo-url') === photo.url) {
+        card.style.display = 'none';
+      }
+    });
+
+    // 4. Remove photo from active lightbox list
+    activeFlatPhotos = activeFlatPhotos.filter(p => p.url !== photo.url);
+
+    // 5. Close removal modal & alert user
+    window.closeRemovalModal();
+    alert('Pedido enviado com sucesso! A fotografia foi ocultada imediatamente do álbum.');
+
+    // 6. Refresh or close lightbox
+    if (activeFlatPhotos.length === 0) {
+      window.closeLightbox();
+    } else {
+      currentIndex = currentIndex % activeFlatPhotos.length;
+      updateLightbox();
+    }
+  };
+
+  // Keyboard Navigation
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeLightbox();
+    const removalModal = document.getElementById('removal-modal');
+    if (removalModal && !removalModal.classList.contains('hidden')) {
+      if (e.key === 'Escape') window.closeRemovalModal();
+      return;
+    }
+
+    const lightbox = document.getElementById('lightbox');
+    if (!lightbox || lightbox.classList.contains('hidden')) return;
+
+    if (e.key === 'Escape') window.closeLightbox();
+    if (e.key === 'ArrowRight') window.nextPhoto();
+    if (e.key === 'ArrowLeft') window.prevPhoto();
   });
+
+  // Run on load
+  initHiddenPhotos();
 </script>

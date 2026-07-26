@@ -1,0 +1,660 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getWebmasterEmails } from '../../data/webmasters';
+
+const webmasterEmails = getWebmasterEmails().join(', ');
+
+function stripMarkdown(text: string) {
+  return text
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/[*_~`#>]+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function excerptFromBody(body: string, wordCount = 28) {
+  const firstParagraph =
+    body
+      .trim()
+      .split(/\n\s*\n/)
+      .map((block) => stripMarkdown(block))
+      .find((block) => block.length > 0) ?? '';
+
+  const words = firstParagraph.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return '';
+  if (words.length <= wordCount) return firstParagraph;
+  return `${words.slice(0, wordCount).join(' ')}...`;
+}
+
+const allProfessionals = (await getCollection('professionals'))
+  .filter((pro) => pro.data.approved !== false)
+  .sort((a, b) => a.data.title.localeCompare(b.data.title, 'pt'));
+
+const allAreas = [
+  ...new Set(allProfessionals.flatMap((pro) => pro.data.areas ?? [])),
+].sort((a, b) => a.localeCompare(b, 'pt'));
+
+const professionals = allProfessionals.map((pro) => ({
+  id: pro.id,
+  title: pro.data.title,
+  role: pro.data.role,
+  areas: pro.data.areas ?? [],
+  location: pro.data.location || '',
+  contact: pro.data.contact || '',
+  website: pro.data.website || '',
+  image: pro.data.image || '',
+  community: pro.data.community ?? false,
+  excerpt: excerptFromBody(pro.body ?? ''),
+  searchText: [
+    pro.data.title,
+    pro.data.role,
+    pro.data.location,
+    ...(pro.data.areas ?? []),
+    pro.data.community ? 'comunidade' : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLocaleLowerCase('pt'),
+}));
+---
+
+<BaseLayout title="Profissionais">
+  <div class="flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_15.5rem] lg:gap-x-8 lg:gap-y-6 gap-6">
+    <header class="lg:col-start-1 lg:row-start-1">
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div class="max-w-2xl">
+          <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+            Profissionais
+          </h1>
+          <p class="text-slate-600 mt-1.5 leading-relaxed text-sm sm:text-base">
+            Diretório de profissionais com conhecimento ou abertura à não-monogamia ética —
+            terapia, direito, educação e outras áreas. Inclui também pessoas da nossa comunidade.
+          </p>
+        </div>
+        <button
+          type="button"
+          id="open-suggest-pro"
+          class="shrink-0 inline-flex items-center justify-center bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-700 hover:to-purple-700 text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-md transition"
+        >
+          Sugerir profissional
+        </button>
+      </div>
+    </header>
+
+    <aside class="lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-20 space-y-4 self-start">
+      {professionals.length > 0 && (
+        <>
+          <div>
+            <label for="pro-search" class="sr-only">Pesquisar profissionais</label>
+            <div class="relative">
+              <svg
+                class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m1.6-5.4a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
+              </svg>
+              <input
+                id="pro-search"
+                type="search"
+                placeholder="Pesquisar por nome…"
+                autocomplete="off"
+                class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 shadow-sm outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200 transition"
+              />
+            </div>
+          </div>
+
+          {allAreas.length > 0 && (
+            <div class="flex flex-wrap gap-1.5" id="pro-area-filters" role="group" aria-label="Filtrar por área">
+              <button
+                type="button"
+                data-area=""
+                class="pro-area-btn is-active rounded-full border px-2.5 py-1 text-[11px] font-semibold transition border-purple-600 bg-purple-600 text-white"
+              >
+                Todas
+              </button>
+              {allAreas.map((area) => (
+                <button
+                  type="button"
+                  data-area={area}
+                  class="pro-area-btn rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:border-purple-300 hover:text-purple-700 transition"
+                >
+                  {area}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div class="flex flex-wrap gap-1.5" role="group" aria-label="Filtrar por origem">
+            <button
+              type="button"
+              data-community=""
+              class="pro-community-btn is-active rounded-full border px-2.5 py-1 text-[11px] font-semibold transition border-purple-600 bg-purple-600 text-white"
+            >
+              Todes
+            </button>
+            <button
+              type="button"
+              data-community="true"
+              class="pro-community-btn rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:border-emerald-300 hover:text-emerald-700 transition"
+            >
+              Da comunidade
+            </button>
+          </div>
+        </>
+      )}
+
+      <p class="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-[11px] leading-relaxed text-emerald-950/80">
+        <span class="font-bold text-emerald-800">Da comunidade</span>
+        — profissionais que também fazem parte da comunidade Porto Não-Monogâmico.
+      </p>
+
+      <p class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[11px] leading-relaxed text-slate-600">
+        Esta lista é informativa e não constitui uma recomendação formal. Confirma sempre credenciais e se o acompanhamento faz sentido para ti.
+      </p>
+    </aside>
+
+    <div class="lg:col-start-1 lg:row-start-2 min-w-0">
+      {professionals.length === 0 ? (
+        <div class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-6 py-12 text-center">
+          <p class="text-slate-700 font-semibold">Ainda não há profissionais publicados.</p>
+          <p class="text-sm text-slate-500 mt-2 max-w-md mx-auto leading-relaxed">
+            Em breve vais encontrar aqui terapeutas, advogados/as e outras pessoas com abertura
+            ou conhecimento sobre não-monogamia ética.
+          </p>
+        </div>
+      ) : (
+        <>
+          <p id="pro-filter-status" class="mb-3 text-xs text-slate-500" aria-live="polite"></p>
+
+          <ul id="pro-list" class="space-y-3">
+            {professionals.map((pro) => (
+              <li
+                data-search={pro.searchText}
+                data-areas={(pro.areas ?? []).join('|')}
+                data-community={pro.community ? 'true' : 'false'}
+              >
+                <a
+                  href={`/professionals/${pro.id}`}
+                  class:list={[
+                    'relative block p-4 sm:p-5 rounded-xl border shadow-sm hover:shadow-md transition group overflow-hidden',
+                    pro.community
+                      ? 'bg-emerald-50/70 border-emerald-300 hover:border-emerald-400'
+                      : 'bg-white border-slate-200 hover:border-purple-300',
+                  ]}
+                >
+                  {pro.community && (
+                    <span class="absolute top-0 right-0 rounded-bl-xl bg-emerald-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm">
+                      Da comunidade
+                    </span>
+                  )}
+
+                  <article class="flex gap-4">
+                    <div class="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-slate-200">
+                      {pro.image ? (
+                        <img
+                          src={pro.image}
+                          alt=""
+                          class="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div class="w-full h-full flex items-center justify-center text-slate-400 text-lg font-bold">
+                          {pro.title.slice(0, 1)}
+                        </div>
+                      )}
+                    </div>
+
+                    <div class:list={['min-w-0 flex-1 space-y-1.5', pro.community && 'pr-24']}>
+                      <h2
+                        class:list={[
+                          'text-lg font-bold leading-snug transition',
+                          pro.community
+                            ? 'text-emerald-950 group-hover:text-emerald-800'
+                            : 'text-slate-900 group-hover:text-purple-700',
+                        ]}
+                      >
+                        {pro.title}
+                      </h2>
+                      <p
+                        class:list={[
+                          'text-sm font-medium',
+                          pro.community ? 'text-emerald-800' : 'text-purple-700',
+                        ]}
+                      >
+                        {pro.role}
+                      </p>
+                      {pro.location && (
+                        <p class="text-xs text-slate-500">{pro.location}</p>
+                      )}
+                      {pro.excerpt && (
+                        <p class="text-sm text-slate-600 leading-relaxed pt-0.5">
+                          {pro.excerpt}
+                        </p>
+                      )}
+                      {(pro.areas?.length ?? 0) > 0 && (
+                        <div class="flex flex-wrap gap-1.5 pt-1">
+                          {pro.areas.map((area) => (
+                            <span
+                              class:list={[
+                                'rounded-full border px-2 py-0.5 text-[11px] font-semibold',
+                                pro.community
+                                  ? 'bg-emerald-100 text-emerald-900 border-emerald-200'
+                                  : 'bg-purple-50 text-purple-700 border-purple-100',
+                              ]}
+                            >
+                              {area}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </article>
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          <p id="pro-filter-empty" class="hidden py-10 text-center text-sm text-slate-500 italic">
+            Nenhum profissional corresponde aos filtros selecionados.
+          </p>
+        </>
+      )}
+    </div>
+  </div>
+
+  <form name="professional-suggestion" method="POST" data-netlify="true" netlify-honeypot="website_url" class="hidden" aria-hidden="true">
+    <input type="hidden" name="form-name" value="professional-suggestion" />
+    <input name="title" />
+    <input name="role" />
+    <input name="areas" />
+    <input name="location" />
+    <input name="contact" />
+    <input name="website" />
+    <input name="bio" />
+    <input name="community" />
+    <input name="suggestedBy" />
+    <input name="suggestedEmail" />
+    <input name="website_url" />
+  </form>
+
+  <div
+    id="suggest-pro-modal"
+    class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="suggest-pro-title"
+  >
+    <div class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl border border-slate-200">
+      <div class="sticky top-0 flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-200 bg-white">
+        <h2 id="suggest-pro-title" class="text-lg font-extrabold text-slate-900">Sugerir profissional</h2>
+        <button
+          type="button"
+          id="close-suggest-pro"
+          class="h-8 w-8 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition"
+          aria-label="Fechar"
+        >
+          ×
+        </button>
+      </div>
+
+      <form id="suggest-pro-form" class="p-5 space-y-4" data-webmaster-emails={webmasterEmails}>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          A tua sugestão fica pendente até uma pessoa webmaster aprovar no painel de administração.
+        </p>
+
+        <div>
+          <label for="pro-suggest-title" class="block text-xs font-bold text-slate-700 mb-1">Nome *</label>
+          <input
+            id="pro-suggest-title"
+            name="title"
+            type="text"
+            required
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200"
+          />
+        </div>
+
+        <div>
+          <label for="pro-suggest-role" class="block text-xs font-bold text-slate-700 mb-1">Especialidade / cargo *</label>
+          <input
+            id="pro-suggest-role"
+            name="role"
+            type="text"
+            required
+            placeholder="Ex: Psicóloga clínica"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200"
+          />
+        </div>
+
+        <div>
+          <label for="pro-suggest-areas" class="block text-xs font-bold text-slate-700 mb-1">Áreas</label>
+          <input
+            id="pro-suggest-areas"
+            name="areas"
+            type="text"
+            placeholder="Terapia, Direito, Coaching (separadas por vírgula)"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200"
+          />
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label for="pro-suggest-location" class="block text-xs font-bold text-slate-700 mb-1">Localização</label>
+            <input
+              id="pro-suggest-location"
+              name="location"
+              type="text"
+              placeholder="Porto"
+              class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200"
+            />
+          </div>
+          <div>
+            <label for="pro-suggest-contact" class="block text-xs font-bold text-slate-700 mb-1">Contacto</label>
+            <input
+              id="pro-suggest-contact"
+              name="contact"
+              type="text"
+              placeholder="E-mail, telefone ou link"
+              class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="pro-suggest-website" class="block text-xs font-bold text-slate-700 mb-1">Website / perfil</label>
+          <input
+            id="pro-suggest-website"
+            name="website"
+            type="url"
+            placeholder="https://"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200"
+          />
+        </div>
+
+        <div>
+          <label for="pro-suggest-bio" class="block text-xs font-bold text-slate-700 mb-1">Bio / apresentação</label>
+          <textarea
+            id="pro-suggest-bio"
+            name="bio"
+            rows="4"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200 resize-y"
+          ></textarea>
+        </div>
+
+        <label class="flex items-start gap-2 text-sm text-slate-700">
+          <input id="pro-suggest-community" name="community" type="checkbox" class="mt-1 rounded border-slate-300" />
+          <span>Faz parte da comunidade Porto Não-Monogâmico.</span>
+        </label>
+
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label for="pro-suggest-by" class="block text-xs font-bold text-slate-700 mb-1">O teu nome *</label>
+            <input
+              id="pro-suggest-by"
+              name="suggestedBy"
+              type="text"
+              required
+              class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200"
+            />
+          </div>
+          <div>
+            <label for="pro-suggest-email" class="block text-xs font-bold text-slate-700 mb-1">O teu e-mail *</label>
+            <input
+              id="pro-suggest-email"
+              name="suggestedEmail"
+              type="email"
+              required
+              class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200"
+            />
+          </div>
+        </div>
+
+        <div class="hidden" aria-hidden="true">
+          <label for="pro-suggest-honeypot">Website</label>
+          <input id="pro-suggest-honeypot" name="website_url" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <p id="suggest-pro-status" class="hidden text-sm" role="status"></p>
+
+        <div class="flex flex-col sm:flex-row gap-3 pt-1">
+          <button
+            type="submit"
+            id="suggest-pro-submit"
+            class="inline-flex items-center justify-center bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-700 hover:to-purple-700 text-white font-bold px-5 py-3 rounded-xl shadow-md transition"
+          >
+            Enviar sugestão
+          </button>
+          <button
+            type="button"
+            id="cancel-suggest-pro"
+            class="inline-flex items-center justify-center bg-white border border-slate-200 text-slate-700 font-bold px-5 py-3 rounded-xl hover:bg-slate-50 transition"
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const normalize = (value: string) =>
+    value
+      .normalize('NFD')
+      .replace(/\p{M}/gu, '')
+      .toLocaleLowerCase('pt');
+
+  const searchInput = document.getElementById('pro-search') as HTMLInputElement | null;
+  const listEl = document.getElementById('pro-list');
+  const emptyEl = document.getElementById('pro-filter-empty');
+  const statusEl = document.getElementById('pro-filter-status');
+  const areaButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('.pro-area-btn'));
+  const communityButtons = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('.pro-community-btn')
+  );
+
+  if (listEl) {
+    const items = Array.from(listEl.querySelectorAll<HTMLElement>(':scope > li'));
+    let selectedArea = '';
+    let selectedCommunity = '';
+
+    const setActive = (buttons: HTMLButtonElement[], active: HTMLButtonElement, activeColor: 'purple' | 'emerald') => {
+      for (const other of buttons) {
+        const on = other === active;
+        other.classList.toggle('is-active', on);
+        if (activeColor === 'emerald' && (active.dataset.community === 'true')) {
+          other.classList.toggle('border-emerald-600', on);
+          other.classList.toggle('bg-emerald-600', on);
+          other.classList.toggle('text-white', on);
+          other.classList.toggle('border-purple-600', false);
+          other.classList.toggle('bg-purple-600', false);
+        } else {
+          other.classList.toggle('border-purple-600', on);
+          other.classList.toggle('bg-purple-600', on);
+          other.classList.toggle('text-white', on);
+          other.classList.toggle('border-emerald-600', false);
+          other.classList.toggle('bg-emerald-600', false);
+        }
+        other.classList.toggle('border-slate-200', !on);
+        other.classList.toggle('bg-white', !on);
+        other.classList.toggle('text-slate-600', !on);
+      }
+    };
+
+    const applyFilters = () => {
+      const query = normalize(searchInput?.value.trim() ?? '');
+      let visible = 0;
+
+      for (const item of items) {
+        const haystack = item.dataset.search ?? '';
+        const areas = (item.dataset.areas ?? '').split('|').filter(Boolean);
+        const community = item.dataset.community === 'true';
+
+        const matchesSearch = !query || haystack.includes(query);
+        const matchesArea = !selectedArea || areas.includes(selectedArea);
+        const matchesCommunity =
+          !selectedCommunity || (selectedCommunity === 'true' && community);
+        const match = matchesSearch && matchesArea && matchesCommunity;
+
+        item.hidden = !match;
+        if (match) visible += 1;
+      }
+
+      if (emptyEl) emptyEl.classList.toggle('hidden', visible > 0);
+      listEl.classList.toggle('hidden', visible === 0);
+
+      if (statusEl) {
+        const parts: string[] = [];
+        if (query) parts.push(`pesquisa “${searchInput?.value.trim()}”`);
+        if (selectedArea) parts.push(`área “${selectedArea}”`);
+        if (selectedCommunity) parts.push('da comunidade');
+
+        if (parts.length === 0) {
+          statusEl.textContent = '';
+        } else {
+          statusEl.textContent =
+            visible === 1
+              ? `1 profissional · ${parts.join(' · ')}`
+              : `${visible} profissionais · ${parts.join(' · ')}`;
+        }
+      }
+    };
+
+    searchInput?.addEventListener('input', applyFilters);
+
+    for (const btn of areaButtons) {
+      btn.addEventListener('click', () => {
+        selectedArea = btn.dataset.area ?? '';
+        setActive(areaButtons, btn, 'purple');
+        applyFilters();
+      });
+    }
+
+    for (const btn of communityButtons) {
+      btn.addEventListener('click', () => {
+        selectedCommunity = btn.dataset.community ?? '';
+        setActive(communityButtons, btn, 'emerald');
+        applyFilters();
+      });
+    }
+  }
+
+  // Suggest professional modal
+  const suggestModal = document.getElementById('suggest-pro-modal');
+  const suggestForm = document.getElementById('suggest-pro-form') as HTMLFormElement | null;
+  const suggestStatus = document.getElementById('suggest-pro-status');
+  const suggestSubmit = document.getElementById('suggest-pro-submit') as HTMLButtonElement | null;
+  const openSuggest = document.getElementById('open-suggest-pro');
+  const closeSuggest = document.getElementById('close-suggest-pro');
+  const cancelSuggest = document.getElementById('cancel-suggest-pro');
+
+  const setSuggestOpen = (open: boolean) => {
+    if (!suggestModal) return;
+    suggestModal.classList.toggle('hidden', !open);
+    suggestModal.classList.toggle('flex', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  };
+
+  openSuggest?.addEventListener('click', () => setSuggestOpen(true));
+  closeSuggest?.addEventListener('click', () => setSuggestOpen(false));
+  cancelSuggest?.addEventListener('click', () => setSuggestOpen(false));
+  suggestModal?.addEventListener('click', (e) => {
+    if (e.target === suggestModal) setSuggestOpen(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && suggestModal && !suggestModal.classList.contains('hidden')) {
+      setSuggestOpen(false);
+    }
+  });
+
+  suggestForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!suggestForm || !suggestStatus || !suggestSubmit) return;
+
+    const fd = new FormData(suggestForm);
+    const areas = String(fd.get('areas') || '')
+      .split(',')
+      .map((a) => a.trim())
+      .filter(Boolean);
+
+    const payload = {
+      title: String(fd.get('title') || '').trim(),
+      role: String(fd.get('role') || '').trim(),
+      areas,
+      location: String(fd.get('location') || '').trim(),
+      contact: String(fd.get('contact') || '').trim(),
+      website: String(fd.get('website') || '').trim(),
+      bio: String(fd.get('bio') || '').trim(),
+      community: fd.get('community') === 'on',
+      suggestedBy: String(fd.get('suggestedBy') || '').trim(),
+      suggestedEmail: String(fd.get('suggestedEmail') || '').trim(),
+      website_url: String(fd.get('website_url') || '').trim(),
+    };
+
+    suggestSubmit.disabled = true;
+    suggestStatus.classList.remove('hidden', 'text-emerald-700', 'text-rose-700');
+    suggestStatus.classList.add('text-slate-600');
+    suggestStatus.textContent = 'A enviar sugestão…';
+
+    let createdPending = false;
+
+    try {
+      const fnRes = await fetch('/.netlify/functions/suggest-professional', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (fnRes.ok) {
+        const result = await fnRes.json();
+        createdPending = Boolean(result?.ok);
+      }
+    } catch {
+      // Function unavailable locally
+    }
+
+    try {
+      const body = new URLSearchParams({
+        'form-name': 'professional-suggestion',
+        title: payload.title,
+        role: payload.role,
+        areas: payload.areas.join(', '),
+        location: payload.location,
+        contact: payload.contact,
+        website: payload.website,
+        bio: payload.bio,
+        community: payload.community ? 'sim' : 'não',
+        suggestedBy: payload.suggestedBy,
+        suggestedEmail: payload.suggestedEmail,
+        website_url: payload.website_url,
+        pendingCreated: createdPending ? 'sim' : 'não',
+        notifyEmails: suggestForm.dataset.webmasterEmails || '',
+      });
+
+      await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
+      });
+    } catch {
+      // Forms may fail in pure local static preview
+    }
+
+    suggestStatus.classList.remove('text-slate-600');
+    suggestStatus.classList.add('text-emerald-700');
+    suggestStatus.textContent = createdPending
+      ? 'Sugestão enviada! Ficou pendente de aprovação no painel de administração.'
+      : 'Sugestão enviada! A equipa vai rever e publicar se fizer sentido.';
+
+    suggestForm.reset();
+    suggestSubmit.disabled = false;
+    setTimeout(() => setSuggestOpen(false), 2200);
+  });
+</script>

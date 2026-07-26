@@ -2,6 +2,10 @@
 title: "Tertúlias Não-Monogâmicas — 44.º Encontro "
 eventDate: 2026-05-07T18:00:00.000Z
 location: "A anunciar"
+tags:
+  - "Tertúlia"
+external: false
+approved: true
 ---
 
 ✨ Desejo e Expetativa

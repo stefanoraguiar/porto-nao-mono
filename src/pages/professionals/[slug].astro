@@ -1,0 +1,172 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const professionals = (await getCollection('professionals')).filter(
+    (pro) => pro.data.approved !== false
+  );
+  return professionals.map((pro) => ({
+    params: { slug: pro.id },
+    props: { pro },
+  }));
+}
+
+const { pro } = Astro.props;
+const { Content } = await render(pro);
+const { title, role, areas, contact, website, location, image, community } = pro.data;
+
+function contactHref(value: string) {
+  if (!value) return '';
+  if (/^https?:\/\//i.test(value)) return value;
+  if (value.includes('@') && !value.includes(' ')) return `mailto:${value}`;
+  if (/^[\d\s+().-]+$/.test(value)) return `tel:${value.replace(/\s+/g, '')}`;
+  return value;
+}
+
+const contactLink = contact ? contactHref(contact) : '';
+const websiteLink =
+  website && !/^https?:\/\//i.test(website) ? `https://${website}` : website;
+---
+
+<BaseLayout title={title}>
+  <div class="max-w-3xl mx-auto">
+    <a
+      href="/professionals"
+      class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-purple-700 transition mb-8"
+    >
+      <span aria-hidden="true">←</span>
+      Voltar aos profissionais
+    </a>
+
+    <article>
+      <header class="relative mb-8 pb-8 border-b border-slate-200">
+        {community && (
+          <span class="absolute top-0 right-0 rounded-bl-xl rounded-tr-lg bg-emerald-600 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm">
+            Da comunidade
+          </span>
+        )}
+
+        <div class="flex flex-col sm:flex-row gap-5 sm:items-start">
+          <div class="shrink-0 w-28 h-28 rounded-2xl overflow-hidden bg-slate-200 shadow-sm">
+            {image ? (
+              <img src={image} alt={`Retrato de ${title}`} class="w-full h-full object-cover" />
+            ) : (
+              <div class="w-full h-full flex items-center justify-center text-slate-400 text-3xl font-bold">
+                {title.slice(0, 1)}
+              </div>
+            )}
+          </div>
+
+          <div class:list={['min-w-0 flex-1', community && 'pr-28']}>
+            <p
+              class:list={[
+                'text-xs font-bold uppercase tracking-wider mb-2',
+                community ? 'text-emerald-700' : 'text-purple-600',
+              ]}
+            >
+              Profissional
+            </p>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
+              {title}
+            </h1>
+            <p
+              class:list={[
+                'mt-2 text-base font-semibold',
+                community ? 'text-emerald-800' : 'text-purple-700',
+              ]}
+            >
+              {role}
+            </p>
+            {location && <p class="mt-1 text-sm text-slate-500">{location}</p>}
+          </div>
+        </div>
+
+        {(areas?.length ?? 0) > 0 && (
+          <div class="mt-5 flex flex-wrap gap-1.5">
+            {areas.map((area) => (
+              <span
+                class:list={[
+                  'rounded-full border px-2.5 py-0.5 text-[11px] font-semibold',
+                  community
+                    ? 'bg-emerald-100 text-emerald-900 border-emerald-200'
+                    : 'bg-purple-50 text-purple-700 border-purple-100',
+                ]}
+              >
+                {area}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {(contactLink || websiteLink) && (
+          <div class="mt-6 flex flex-col sm:flex-row gap-3">
+            {contactLink && (
+              <a
+                href={contactLink}
+                target={contactLink.startsWith('http') ? '_blank' : undefined}
+                rel={contactLink.startsWith('http') ? 'noopener noreferrer' : undefined}
+                class="inline-flex items-center justify-center bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-700 hover:to-purple-700 text-white font-bold px-5 py-3 rounded-xl shadow-md transition"
+              >
+                Contactar
+              </a>
+            )}
+            {websiteLink && (
+              <a
+                href={websiteLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center justify-center bg-white border border-slate-200 hover:border-purple-300 text-slate-800 hover:text-purple-700 font-bold px-5 py-3 rounded-xl shadow-sm transition"
+              >
+                Website / Perfil
+              </a>
+            )}
+          </div>
+        )}
+      </header>
+
+      <div class="pro-body">
+        <Content />
+      </div>
+
+      <footer class="mt-12 pt-8 border-t border-slate-200">
+        <a
+          href="/professionals"
+          class="inline-flex items-center justify-center bg-white border border-slate-200 hover:border-purple-300 text-slate-800 hover:text-purple-700 font-bold px-5 py-3 rounded-xl shadow-sm transition"
+        >
+          Ver todos os profissionais
+        </a>
+      </footer>
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .pro-body {
+    color: #334155;
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+
+  .pro-body :global(p) {
+    margin: 0 0 1.25em;
+  }
+
+  .pro-body :global(a) {
+    color: #7c3aed;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .pro-body :global(ul),
+  .pro-body :global(ol) {
+    margin: 0 0 1.25em;
+    padding-left: 1.4em;
+  }
+
+  .pro-body :global(strong) {
+    color: #0f172a;
+    font-weight: 700;
+  }
+</style>

@@ -1,0 +1,248 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildGoogleCalendarUrl, buildIcs } from '../../lib/calendar';
+
+export async function getStaticPaths() {
+  const events = (await getCollection('events')).filter(
+    (event) => event.data.approved !== false
+  );
+  return events.map((event) => ({
+    params: { slug: event.id },
+    props: { event },
+  }));
+}
+
+const { event } = Astro.props;
+const { Content } = await render(event);
+const { title, eventDate, location, tags, photosUrl, external } = event.data;
+
+const pageUrl = Astro.url.href;
+const plainDescription = (event.body ?? '')
+  .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+  .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+  .replace(/[*_~`#>]+/g, '')
+  .replace(/\s+/g, ' ')
+  .trim()
+  .slice(0, 500);
+
+const icsContent = buildIcs({
+  id: event.id,
+  title,
+  description: plainDescription,
+  location,
+  start: eventDate,
+  url: pageUrl,
+});
+
+const googleCalendarUrl = buildGoogleCalendarUrl({
+  title,
+  description: plainDescription,
+  location,
+  start: eventDate,
+  url: pageUrl,
+});
+
+const icsHref = `data:text/calendar;charset=utf-8,${encodeURIComponent(icsContent)}`;
+
+const dateLabel = eventDate.toLocaleDateString('pt-PT', {
+  timeZone: 'Europe/Lisbon',
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+
+const timeLabel = eventDate.toLocaleTimeString('pt-PT', {
+  timeZone: 'Europe/Lisbon',
+  hour: '2-digit',
+  minute: '2-digit',
+});
+---
+
+<BaseLayout title={title}>
+  <div class="max-w-3xl mx-auto">
+    <a
+      href="/events"
+      class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-purple-700 transition mb-8"
+    >
+      <span aria-hidden="true">←</span>
+      Voltar aos eventos
+    </a>
+
+    <article>
+      <header class="relative mb-8 pb-8 border-b border-slate-200">
+        {external && (
+          <span class="absolute top-0 right-0 rounded-bl-xl rounded-tr-lg bg-amber-500 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm">
+            Evento Externo
+          </span>
+        )}
+        <p
+          class:list={[
+            'text-xs font-bold uppercase tracking-wider mb-3',
+            external ? 'text-amber-700' : 'text-purple-600',
+            external && 'pr-28',
+          ]}
+        >
+          {external ? 'Evento externo' : 'Evento'}
+        </p>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
+          {title}
+        </h1>
+
+        {external && (
+          <p class="mt-3 text-sm text-amber-900/80 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+            Este evento não é organizado pela comunidade Porto Não-Monogâmico — partilhamos aqui por relevância.
+          </p>
+        )}
+
+        <div class="mt-5 flex flex-col sm:flex-row sm:flex-wrap gap-3 text-sm text-slate-600">
+          <div
+            class:list={[
+              'inline-flex items-center gap-2 rounded-lg px-3 py-2',
+              external ? 'bg-amber-50 border border-amber-200' : 'bg-slate-100',
+            ]}
+          >
+            <span class="font-semibold text-slate-800 capitalize">{dateLabel}</span>
+            <span class="text-slate-400" aria-hidden="true">·</span>
+            <span>{timeLabel}</span>
+          </div>
+          <div
+            class:list={[
+              'inline-flex items-center gap-2 rounded-lg px-3 py-2',
+              external ? 'bg-amber-50 border border-amber-200' : 'bg-slate-100',
+            ]}
+          >
+            <span class="text-slate-500">Local</span>
+            <span class="font-semibold text-slate-800">{location}</span>
+          </div>
+        </div>
+
+        {(tags?.length ?? 0) > 0 && (
+          <div class="mt-4 flex flex-wrap gap-1.5">
+            {tags.map((tag) => (
+              <span
+                class:list={[
+                  'rounded-full border px-2.5 py-0.5 text-[11px] font-semibold',
+                  external
+                    ? 'bg-amber-100 text-amber-900 border-amber-200'
+                    : 'bg-purple-50 text-purple-700 border-purple-100',
+                ]}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <div class="mt-6 flex flex-col sm:flex-row gap-3">
+          <a
+            href={icsHref}
+            download={`${event.id}.ics`}
+            class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-700 hover:to-purple-700 text-white font-bold px-5 py-3 rounded-xl shadow-md transition"
+          >
+            Adicionar à agenda
+          </a>
+          <a
+            href={googleCalendarUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center justify-center gap-2 bg-white border border-slate-200 hover:border-purple-300 text-slate-800 hover:text-purple-700 font-bold px-5 py-3 rounded-xl shadow-sm transition"
+          >
+            Google Calendar
+          </a>
+          {photosUrl && (
+            <a
+              href={photosUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center justify-center gap-2 bg-white border border-slate-200 hover:border-rose-300 text-slate-800 hover:text-rose-700 font-bold px-5 py-3 rounded-xl shadow-sm transition"
+            >
+              Fotos do Evento
+            </a>
+          )}
+        </div>
+        <p class="mt-2 text-xs text-slate-500">
+          “Adicionar à agenda” descarrega um ficheiro .ics compatível com iPhone, Android e a maioria das apps de calendário.
+        </p>
+      </header>
+
+      <div class="event-body">
+        <Content />
+      </div>
+
+      <footer class="mt-12 pt-8 border-t border-slate-200">
+        <a
+          href="/events"
+          class="inline-flex items-center justify-center bg-white border border-slate-200 hover:border-purple-300 text-slate-800 hover:text-purple-700 font-bold px-5 py-3 rounded-xl shadow-sm transition"
+        >
+          Ver todos os eventos
+        </a>
+      </footer>
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .event-body {
+    color: #334155;
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+
+  .event-body :global(p) {
+    margin: 0 0 1.25em;
+  }
+
+  .event-body :global(h2) {
+    margin: 2em 0 0.75em;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+    line-height: 1.25;
+  }
+
+  .event-body :global(h3) {
+    margin: 1.75em 0 0.6em;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.3;
+  }
+
+  .event-body :global(a) {
+    color: #7c3aed;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .event-body :global(a:hover) {
+    color: #6d28d9;
+  }
+
+  .event-body :global(ul),
+  .event-body :global(ol) {
+    margin: 0 0 1.25em;
+    padding-left: 1.4em;
+  }
+
+  .event-body :global(li) {
+    margin-bottom: 0.4em;
+  }
+
+  .event-body :global(blockquote) {
+    margin: 1.5em 0;
+    padding: 0.75em 1em;
+    border-left: 4px solid #c4b5fd;
+    background: #faf5ff;
+    color: #475569;
+    border-radius: 0 0.75rem 0.75rem 0;
+  }
+
+  .event-body :global(strong) {
+    color: #0f172a;
+    font-weight: 700;
+  }
+</style>

@@ -2,6 +2,10 @@
 title: "Tertúlias Não-Monogâmicas — 41.º Encontro "
 eventDate: 2026-03-26T19:00:00.000Z
 location: "A anunciar"
+tags:
+  - "Tertúlia"
+external: false
+approved: true
 ---
 
 Tertúlias Não-Monogâmicas — 41.º Encontro 

@@ -2,6 +2,11 @@
 title: "Concentração da Marcha do Orgulho do Porto"
 eventDate: 2026-03-19T15:30:00.000Z
 location: "A anunciar"
+tags:
+  - "Orgulho"
+  - "Ativismo"
+external: true
+approved: true
 ---
 
 ** Este não é um evento organizado pelas Tertúlias Não-Monogâmicas

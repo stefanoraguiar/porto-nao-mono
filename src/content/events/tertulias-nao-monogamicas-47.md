@@ -2,6 +2,10 @@
 title: "Tertúlias Não-Monogâmicas — 47.º Encontro"
 eventDate: 2026-06-18T18:00:00.000Z
 location: "A anunciar"
+tags:
+  - "Tertúlia"
+external: false
+approved: true
 ---
 
 ✨ Amores, afetos e amigues

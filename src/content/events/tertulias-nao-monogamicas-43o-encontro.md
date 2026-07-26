@@ -2,6 +2,10 @@
 title: "Tertúlias Não-Monogâmicas - 43º Encontro"
 eventDate: 2026-04-23T18:00:00.000Z
 location: "A anunciar"
+tags:
+  - "Tertúlia"
+external: false
+approved: true
 ---
 
 Esta Tertúlia ainda não tem um tema definido.
