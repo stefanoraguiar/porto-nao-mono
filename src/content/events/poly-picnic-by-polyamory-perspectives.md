@@ -1,10 +1,11 @@
 ---
-title: "Poly Picnic by Polyamory Perspectives"
+title: Poly Picnic by Polyamory Perspectives
 eventDate: 2026-06-21T13:00:00.000Z
 location: "A anunciar"
 tags:
   - "Picnic"
   - "Parceria"
+photosUrl: ""
 external: true
 approved: true
 ---
