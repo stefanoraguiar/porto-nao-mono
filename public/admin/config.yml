@@ -1,8 +1,10 @@
 backend:
   name: github
-  repo: stefanoraguiar/porto-nao-mono # Replace with your GitHub username/repo-name
+  repo: stefanoraguiar/porto-nao-mono
   branch: main
-  site_domain: porto-nao-mono.netlify.app # Explicitly sets your Netlify site domain
+  # Must match the domain you open /admin from (custom domain, not *.netlify.app)
+  site_domain: portonaomonogamico.com
+
 
 media_folder: "public/images/uploads"
 public_folder: "/images/uploads"

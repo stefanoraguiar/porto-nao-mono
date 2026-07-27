@@ -1,0 +1,608 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const steps = [
+  {
+    id: 'passo-1',
+    n: '1',
+    title: 'Criar conta no GitHub',
+    time: '5 min',
+    color: 'rose',
+    summary: 'Registo gratuito — o teu “cartão de identificação”.',
+  },
+  {
+    id: 'passo-2',
+    n: '2',
+    title: 'Aceitar o convite',
+    time: '2 min',
+    color: 'amber',
+    summary: 'Abre o e-mail do GitHub e aceita.',
+  },
+  {
+    id: 'passo-3',
+    n: '3',
+    title: 'Entrar na gestão',
+    time: '2 min',
+    color: 'sky',
+    summary: 'Sign in with GitHub no painel do site.',
+  },
+  {
+    id: 'passo-4',
+    n: '4',
+    title: 'Editar conteúdos',
+    time: 'quando quiseres',
+    color: 'violet',
+    summary: 'Eventos, artigos, profissionais, galeria.',
+  },
+] as const;
+
+const sections = [
+  { name: 'Eventos', use: 'Criar e editar eventos publicados' },
+  { name: 'Eventos Pendentes', use: 'Sugestões da comunidade por aprovar' },
+  { name: 'Artigos', use: 'Textos e artigos do site' },
+  { name: 'Profissionais', use: 'Diretório de profissionais' },
+  { name: 'Profissionais Pendentes', use: 'Sugestões ainda por aprovar' },
+  { name: 'Galeria', use: 'Álbuns de fotografias' },
+];
+
+const faqs = [
+  {
+    q: 'Não sei o que é o GitHub.',
+    a: 'É um site gratuito onde a equipa guarda os ficheiros do nosso website. A tua conta serve só para o sistema saber que és tu e que tens permissão para editar. Não precisas de saber programar.',
+  },
+  {
+    q: 'Tenho de pagar?',
+    a: 'Não. A conta gratuita chega.',
+  },
+  {
+    q: 'Posso usar o e-mail do Gmail ou Outlook?',
+    a: 'Sim. Qualquer e-mail a que tenhas acesso serve.',
+  },
+  {
+    q: 'Alguém pediu-me um “token” ou PAT.',
+    a: 'Isso é um método alternativo, mais técnico. Prefere o botão “Sign in with GitHub”. Só uses token se a equipa te explicar passo a passo.',
+  },
+  {
+    q: 'Já não quero ter acesso.',
+    a: 'Diz à equipa para te removerem. Se quiseres, podes também apagar a conta do GitHub nas definições da tua conta.',
+  },
+];
+---
+
+<BaseLayout title="Guia para colaboradores" noindex={true}>
+  <article class="max-w-3xl mx-auto">
+    <!-- Intro -->
+    <header class="mb-10">
+      <p class="text-sm font-semibold tracking-wide text-indigo-600 uppercase mb-2">
+        Link interno · não está no menu do site
+      </p>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+        Guia rápido — área de gestão
+      </h1>
+      <p class="mt-3 text-slate-600 leading-relaxed text-base sm:text-lg">
+        Para quem vai editar conteúdos do site (eventos, artigos, profissionais, galeria).
+        <strong class="font-semibold text-slate-800">Não precisas de saber programar.</strong>
+        Só precisas de uma conta no GitHub — o “cartão de identificação” que o site usa para te reconhecer.
+      </p>
+      <p class="mt-3 text-sm text-slate-500">
+        Tempo estimado na primeira vez:
+        <strong class="text-slate-700">10–15 minutos</strong>
+      </p>
+    </header>
+
+    <!-- Visual journey diagram -->
+    <section class="mb-12" aria-labelledby="resumo-heading">
+      <h2 id="resumo-heading" class="sr-only">O que vais fazer</h2>
+
+      <div
+        class="rounded-2xl bg-gradient-to-br from-indigo-50 via-rose-50 to-amber-50 border border-indigo-100/80 p-5 sm:p-7"
+      >
+        <p class="text-sm font-semibold text-indigo-900 mb-5">O teu percurso</p>
+
+        <!-- Desktop flow -->
+        <ol class="hidden sm:grid grid-cols-4 gap-3 relative">
+          {
+            steps.map((step, i) => (
+              <li class="relative flex flex-col items-center text-center">
+                {i < steps.length - 1 && (
+                  <span
+                    class="absolute top-6 left-[calc(50%+1.75rem)] right-[-50%] h-0.5 bg-indigo-200"
+                    aria-hidden="true"
+                  />
+                )}
+                <a
+                  href={`#${step.id}`}
+                  class="relative z-10 flex flex-col items-center gap-2 group"
+                >
+                  <span
+                    class:list={[
+                      'flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-white shadow-md ring-4 ring-white transition group-hover:scale-105',
+                      step.color === 'rose' && 'bg-rose-500',
+                      step.color === 'amber' && 'bg-amber-500',
+                      step.color === 'sky' && 'bg-sky-500',
+                      step.color === 'violet' && 'bg-violet-600',
+                    ]}
+                  >
+                    {step.n}
+                  </span>
+                  <span class="text-sm font-semibold text-slate-800 leading-snug group-hover:text-indigo-700">
+                    {step.title}
+                  </span>
+                  <span class="text-xs text-slate-500">{step.time}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+
+        <!-- Mobile flow -->
+        <ol class="sm:hidden space-y-0">
+          {
+            steps.map((step, i) => (
+              <li class="flex gap-3">
+                <div class="flex flex-col items-center">
+                  <span
+                    class:list={[
+                      'flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow',
+                      step.color === 'rose' && 'bg-rose-500',
+                      step.color === 'amber' && 'bg-amber-500',
+                      step.color === 'sky' && 'bg-sky-500',
+                      step.color === 'violet' && 'bg-violet-600',
+                    ]}
+                  >
+                    {step.n}
+                  </span>
+                  {i < steps.length - 1 && (
+                    <span class="w-0.5 flex-1 min-h-6 bg-indigo-200 my-1" aria-hidden="true" />
+                  )}
+                </div>
+                <a href={`#${step.id}`} class="pb-5 pt-1.5">
+                  <span class="block text-sm font-semibold text-slate-800">{step.title}</span>
+                  <span class="block text-xs text-slate-500 mt-0.5">{step.summary}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <!-- Prerequisite callout -->
+    <aside class="mb-10 flex gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3.5 text-sm text-amber-950">
+      <svg
+        class="h-5 w-5 shrink-0 text-amber-600 mt-0.5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        aria-hidden="true"
+      >
+        <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+        <path d="M3 7l9 6 9-6"></path>
+      </svg>
+      <div>
+        <p class="font-semibold">Antes de começares</p>
+        <p class="mt-1 leading-relaxed text-amber-900/90">
+          Alguém da equipa tem de te <strong>convidar</strong>. Se ainda não recebeste um e-mail do
+          GitHub, pede-lhes que te convidem e indica o e-mail que vais usar na conta.
+        </p>
+      </div>
+    </aside>
+
+    <!-- Step 1 -->
+    <section id="passo-1" class="mb-10 scroll-mt-24">
+      <div class="flex items-start gap-4 mb-4">
+        <span
+          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-rose-500 text-lg font-bold text-white shadow"
+          >1</span
+        >
+        <div>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900">Criar uma conta no GitHub</h2>
+          <p class="text-sm text-slate-500 mt-0.5">~5 minutos</p>
+        </div>
+      </div>
+
+      <!-- Illustration: signup form -->
+      <figure class="mb-5 rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+        <figcaption class="sr-only">Ilustração: ecrã de registo no GitHub</figcaption>
+        <div class="bg-slate-800 px-4 py-2.5 flex items-center gap-2">
+          <span class="h-2.5 w-2.5 rounded-full bg-rose-400" aria-hidden="true"></span>
+          <span class="h-2.5 w-2.5 rounded-full bg-amber-400" aria-hidden="true"></span>
+          <span class="h-2.5 w-2.5 rounded-full bg-emerald-400" aria-hidden="true"></span>
+          <span class="ml-2 text-xs text-slate-300 font-medium">github.com/signup</span>
+        </div>
+        <div class="p-5 sm:p-6 space-y-3 max-w-sm mx-auto">
+          <p class="text-center font-semibold text-slate-800 text-sm mb-4">Create your account</p>
+          <div class="space-y-1">
+            <div class="h-2 w-14 rounded bg-slate-200"></div>
+            <div class="h-9 rounded-md border-2 border-rose-300 bg-rose-50 flex items-center px-3 text-xs text-rose-700 font-medium">
+              o.teu@email.com
+            </div>
+          </div>
+          <div class="space-y-1">
+            <div class="h-2 w-16 rounded bg-slate-200"></div>
+            <div class="h-9 rounded-md border border-slate-200 bg-slate-50 flex items-center px-3 text-xs text-slate-400 tracking-widest">
+              ••••••••
+            </div>
+          </div>
+          <div class="space-y-1">
+            <div class="h-2 w-20 rounded bg-slate-200"></div>
+            <div class="h-9 rounded-md border-2 border-sky-300 bg-sky-50 flex items-center px-3 text-xs text-sky-800 font-medium">
+              joana-silva
+            </div>
+          </div>
+          <div class="h-9 rounded-md bg-emerald-600 flex items-center justify-center text-xs font-semibold text-white mt-2">
+            Continuar
+          </div>
+        </div>
+      </figure>
+
+      <ol class="list-decimal list-outside ml-5 space-y-2 text-slate-700 leading-relaxed">
+        <li>
+          Abre
+          <a
+            href="https://github.com/signup"
+            class="text-indigo-600 font-medium underline-offset-2 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer">github.com/signup</a
+          >
+        </li>
+        <li>
+          Preenche:
+          <ul class="list-disc ml-5 mt-1.5 space-y-1 text-sm">
+            <li><strong>Email</strong> — um e-mail a que tenhas acesso</li>
+            <li><strong>Password</strong> — guarda-a num sítio seguro</li>
+            <li>
+              <strong>Username</strong> — o teu nome de utilizador (ex.: <code
+                class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">joana-silva</code
+              >)
+            </li>
+          </ul>
+        </li>
+        <li>Completa a verificação (pode pedir um código por e-mail).</li>
+        <li>
+          Se perguntar se queres criar um repositório ou equipa, podes
+          <strong>saltar / Skip</strong> — não precisas disso.
+        </li>
+      </ol>
+
+      <p
+        class="mt-4 rounded-lg bg-sky-50 border border-sky-100 px-4 py-3 text-sm text-sky-950 leading-relaxed"
+      >
+        <strong>Dica:</strong> anota o teu <strong>username</strong>. A equipa pode precisar dele
+        para te convidar.
+      </p>
+    </section>
+
+    <!-- Step 2 -->
+    <section id="passo-2" class="mb-10 scroll-mt-24">
+      <div class="flex items-start gap-4 mb-4">
+        <span
+          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-amber-500 text-lg font-bold text-white shadow"
+          >2</span
+        >
+        <div>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900">Aceitar o convite</h2>
+          <p class="text-sm text-slate-500 mt-0.5">~2 minutos</p>
+        </div>
+      </div>
+
+      <!-- Illustration: email invite -->
+      <figure class="mb-5 rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+        <figcaption class="sr-only">Ilustração: e-mail de convite do GitHub</figcaption>
+        <div class="bg-slate-100 px-4 py-2.5 border-b border-slate-200 flex items-center gap-2 text-xs text-slate-500">
+          <svg class="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+            <path d="M3 7l9 6 9-6"></path>
+          </svg>
+          Caixa de entrada
+        </div>
+        <div class="p-5 space-y-3">
+          <div class="flex items-start gap-3">
+            <div class="h-10 w-10 rounded-full bg-slate-800 flex items-center justify-center text-white text-xs font-bold shrink-0">
+              GH
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-semibold text-slate-800 truncate">
+                stefanoraguiar invited you to collaborate
+              </p>
+              <p class="text-xs text-slate-500 mt-0.5">GitHub &lt;noreply@github.com&gt;</p>
+              <p class="text-sm text-slate-600 mt-3 leading-relaxed">
+                Foste convidado(a) a colaborar no repositório do site Porto Não-Monogâmico.
+              </p>
+              <div
+                class="mt-4 inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white"
+              >
+                Accept invitation
+              </div>
+            </div>
+          </div>
+        </div>
+      </figure>
+
+      <ol class="list-decimal list-outside ml-5 space-y-2 text-slate-700 leading-relaxed">
+        <li>
+          Abre o teu e-mail e procura uma mensagem do <strong>GitHub</strong> com assunto parecido
+          com:
+          <ul class="list-disc ml-5 mt-1.5 space-y-1 text-sm text-slate-600">
+            <li><em>“stefanoraguiar invited you to collaborate”</em></li>
+            <li><em>“You have been invited…”</em></li>
+          </ul>
+        </li>
+        <li>Clica em <strong>Accept invitation</strong> / Aceitar convite.</li>
+        <li>Se pedirem para iniciares sessão, usa a conta do Passo 1.</li>
+      </ol>
+
+      <details class="mt-4 group rounded-lg border border-slate-200 bg-white">
+        <summary
+          class="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-slate-800 flex items-center justify-between"
+        >
+          Não encontras o e-mail?
+          <span class="text-slate-400 group-open:rotate-180 transition">▼</span>
+        </summary>
+        <ul class="px-4 pb-4 space-y-2 text-sm text-slate-600 list-disc ml-5">
+          <li>Verifica a pasta de <strong>spam / lixo</strong>.</li>
+          <li>
+            Ou inicia sessão em
+            <a
+              href="https://github.com"
+              class="text-indigo-600 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer">github.com</a
+            >
+            → o teu avatar (canto superior direito) → <strong>Your notifications</strong>.
+          </li>
+          <li>
+            Ou diz à equipa o teu <strong>username</strong> do GitHub para reenviarem o convite.
+          </li>
+        </ul>
+      </details>
+    </section>
+
+    <!-- Step 3 -->
+    <section id="passo-3" class="mb-10 scroll-mt-24">
+      <div class="flex items-start gap-4 mb-4">
+        <span
+          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sky-500 text-lg font-bold text-white shadow"
+          >3</span
+        >
+        <div>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900">Entrar na área de gestão</h2>
+          <p class="text-sm text-slate-500 mt-0.5">~2 minutos</p>
+        </div>
+      </div>
+
+      <!-- Illustration: auth flow -->
+      <figure class="mb-5 rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+        <figcaption class="sr-only">Ilustração: fluxo de entrada com GitHub</figcaption>
+        <div
+          class="grid sm:grid-cols-[1fr_auto_1fr] items-center gap-3 p-5 bg-gradient-to-r from-sky-50 to-violet-50"
+        >
+          <div class="rounded-lg border border-sky-200 bg-white p-4 text-center shadow-sm">
+            <p class="text-xs font-medium text-sky-700 mb-2">O nosso site</p>
+            <p class="text-sm font-bold text-slate-800">/admin</p>
+            <div
+              class="mt-3 mx-auto inline-flex items-center gap-2 rounded-md bg-slate-900 px-3 py-2 text-xs font-semibold text-white"
+            >
+              <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path
+                  d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+                ></path>
+              </svg>
+              Sign in with GitHub
+            </div>
+          </div>
+          <div class="hidden sm:flex flex-col items-center text-indigo-400" aria-hidden="true">
+            <span class="text-2xl font-light">→</span>
+            <span class="text-[10px] uppercase tracking-wide">autorizar</span>
+          </div>
+          <div class="sm:hidden text-center text-indigo-400 text-xl" aria-hidden="true">↓</div>
+          <div class="rounded-lg border border-violet-200 bg-white p-4 text-center shadow-sm">
+            <p class="text-xs font-medium text-violet-700 mb-2">GitHub</p>
+            <p class="text-sm text-slate-600 mb-3">Confirmar a tua conta</p>
+            <div
+              class="mx-auto inline-flex rounded-md bg-emerald-600 px-3 py-2 text-xs font-semibold text-white"
+            >
+              Authorize
+            </div>
+          </div>
+        </div>
+        <p class="text-center text-xs text-slate-500 py-2.5 border-t border-slate-100 bg-slate-50">
+          Depois voltas ao painel — já estás dentro
+        </p>
+      </figure>
+
+      <ol class="list-decimal list-outside ml-5 space-y-2 text-slate-700 leading-relaxed">
+        <li>
+          Abre
+          <a
+            href="/admin/"
+            class="text-indigo-600 font-medium underline-offset-2 hover:underline"
+            >/admin/</a
+          >
+          (ou
+          <a
+            href="https://portonaomonogamico.com/admin/"
+            class="text-indigo-600 font-medium underline-offset-2 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer">portonaomonogamico.com/admin</a
+          >)
+        </li>
+        <li>Clica em <strong>Sign in with GitHub</strong>.</li>
+        <li>
+          Na janela do GitHub: confirma que estás com a <strong>conta certa</strong> e clica em
+          <strong>Authorize</strong> (só na primeira vez).
+        </li>
+        <li>Voltas ao painel de gestão — pronto.</li>
+      </ol>
+
+      <details class="mt-4 group rounded-lg border border-rose-200 bg-rose-50/50">
+        <summary
+          class="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-rose-900 flex items-center justify-between"
+        >
+          Apareceu um erro (“Not found”, ecrã em branco…)?
+          <span class="text-rose-400 group-open:rotate-180 transition">▼</span>
+        </summary>
+        <ol class="px-4 pb-4 space-y-2 text-sm text-rose-950/80 list-decimal ml-5">
+          <li>Confirma que <strong>aceitaste o convite</strong> (Passo 2).</li>
+          <li>
+            Usa este endereço exacto:
+            <code class="text-xs bg-white/80 px-1.5 py-0.5 rounded border border-rose-100"
+              >https://portonaomonogamico.com/admin/</code
+            >
+          </li>
+          <li>Tenta noutro browser (Chrome ou Firefox) ou em janela anónima.</li>
+          <li>Se o bloqueador de pop-ups impedir a janela do GitHub, permite pop-ups e tenta outra vez.</li>
+          <li>Se continuar a falhar, contacta a equipa com uma captura de ecrã.</li>
+        </ol>
+      </details>
+    </section>
+
+    <!-- Step 4 -->
+    <section id="passo-4" class="mb-10 scroll-mt-24">
+      <div class="flex items-start gap-4 mb-4">
+        <span
+          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-violet-600 text-lg font-bold text-white shadow"
+          >4</span
+        >
+        <div>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900">Editar conteúdos</h2>
+          <p class="text-sm text-slate-500 mt-0.5">Quando quiseres</p>
+        </div>
+      </div>
+
+      <p class="text-slate-700 leading-relaxed mb-4">
+        No painel vais ver secções como estas:
+      </p>
+
+      <ul class="grid sm:grid-cols-2 gap-2.5 mb-6">
+        {
+          sections.map((s) => (
+            <li class="rounded-lg border border-slate-200 bg-white px-3.5 py-3">
+              <span class="block text-sm font-semibold text-slate-900">{s.name}</span>
+              <span class="block text-xs text-slate-500 mt-0.5 leading-relaxed">{s.use}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <!-- Edit flow diagram -->
+      <figure class="mb-5 rounded-xl border border-violet-100 bg-violet-50/60 p-4 sm:p-5">
+        <figcaption class="text-xs font-semibold text-violet-800 uppercase tracking-wide mb-4">
+          Fluxo típico
+        </figcaption>
+        <ol class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {
+            [
+              { n: 'A', t: 'Escolhe a secção', d: 'ex.: Eventos' },
+              { n: 'B', t: 'Abre ou cria', d: 'New / Novo' },
+              { n: 'C', t: 'Preenche', d: 'título, data, texto…' },
+              { n: 'D', t: 'Guarda', d: 'Publish / Save' },
+            ].map((item, i) => (
+              <li class="relative rounded-lg bg-white border border-violet-100 p-3 text-center shadow-sm">
+                {i < 3 && (
+                  <span
+                    class="hidden sm:block absolute top-1/2 -right-2.5 text-violet-300 font-light -translate-y-1/2 z-10"
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
+                )}
+                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 text-[11px] font-bold text-white mb-2">
+                  {item.n}
+                </span>
+                <span class="block text-sm font-semibold text-slate-800">{item.t}</span>
+                <span class="block text-xs text-slate-500 mt-0.5">{item.d}</span>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="mt-4 text-sm text-violet-950/80 leading-relaxed">
+          As alterações podem demorar <strong>1–2 minutos</strong> a aparecer no site. Se não
+          tiveres a certeza, deixa o item como <em>não aprovado</em> e pergunta à equipa.
+        </p>
+      </figure>
+
+      <div class="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+        <h3 class="text-sm font-bold text-slate-900 mb-3">Boas práticas</h3>
+        <ul class="space-y-2 text-sm text-slate-700 leading-relaxed">
+          <li class="flex gap-2">
+            <span class="text-emerald-600 shrink-0" aria-hidden="true">✓</span>
+            <span><strong>Uma alteração de cada vez</strong> — grava quando terminares um item.</span>
+          </li>
+          <li class="flex gap-2">
+            <span class="text-emerald-600 shrink-0" aria-hidden="true">✓</span>
+            <span
+              ><strong>Imagens:</strong> usa ficheiros razoáveis (evita ficheiros enormes).</span
+            >
+          </li>
+          <li class="flex gap-2">
+            <span class="text-emerald-600 shrink-0" aria-hidden="true">✓</span>
+            <span
+              ><strong>Aprovado / Publicado:</strong> ligado = aparece no site; desligado = fica
+              pendente.</span
+            >
+          </li>
+          <li class="flex gap-2">
+            <span class="text-emerald-600 shrink-0" aria-hidden="true">✓</span>
+            <span
+              >Ao aprovar sugestões da comunidade, lê bem os dados antes de publicar.</span
+            >
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Logout -->
+    <section class="mb-10 rounded-xl border border-slate-200 bg-slate-100/80 px-4 py-4 text-sm text-slate-700 leading-relaxed">
+      <h2 class="font-bold text-slate-900 mb-1">Sair da conta</h2>
+      <p>
+        No painel, procura <strong>logout / sair</strong> (junto ao teu nome ou no menu). Na próxima
+        vez, volta a
+        <a href="/admin/" class="text-indigo-600 hover:underline">/admin/</a> e entra outra vez com
+        GitHub.
+      </p>
+    </section>
+
+    <!-- FAQ -->
+    <section class="mb-10" aria-labelledby="faq-heading">
+      <h2 id="faq-heading" class="text-xl font-bold text-slate-900 mb-4">Perguntas frequentes</h2>
+      <div class="space-y-2">
+        {
+          faqs.map((item) => (
+            <details class="group rounded-lg border border-slate-200 bg-white open:shadow-sm">
+              <summary class="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-slate-800 flex items-center justify-between gap-3">
+                <span>{item.q}</span>
+                <span class="text-slate-400 shrink-0 group-open:rotate-180 transition text-xs">▼</span>
+              </summary>
+              <p class="px-4 pb-4 text-sm text-slate-600 leading-relaxed">{item.a}</p>
+            </details>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section
+      class="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white px-5 py-6"
+    >
+      <h2 class="text-lg font-bold text-slate-900">Ficaste bloqueado(a)?</h2>
+      <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+        Contacta quem te enviou este guia e envia:
+      </p>
+      <ol class="mt-3 list-decimal ml-5 space-y-1 text-sm text-slate-700">
+        <li>Em que passo paraste (1, 2, 3 ou 4)</li>
+        <li>Uma captura de ecrã do erro</li>
+        <li>O teu <strong>username</strong> do GitHub (se já o tiveres)</li>
+      </ol>
+      <p class="mt-5">
+        <a
+          href="/admin/"
+          class="inline-flex items-center justify-center rounded-lg bg-indigo-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-600 transition"
+        >
+          Ir para a área de gestão
+        </a>
+      </p>
+    </section>
+  </article>
+</BaseLayout>

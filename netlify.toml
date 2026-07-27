@@ -16,3 +16,9 @@
 # Gallery removals are persisted in src/data/removed-photos.json via
 # /.netlify/functions/removed-photos (GET list / POST hide).
 #
+
+# Allow OAuth popup (GitHub login) to postMessage back to /admin
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    Cross-Origin-Opener-Policy = "same-origin-allow-popups"
