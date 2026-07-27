@@ -1,5 +1,14 @@
 {
-  "updatedAt": null,
-  "urls": [],
-  "lastRemoval": null
+  "updatedAt": "2026-07-27T10:01:52.777Z",
+  "urls": [
+    "/images/uploads/2026-07-25-PicNicPNM_008.webp"
+  ],
+  "lastRemoval": {
+    "url": "/images/uploads/2026-07-25-PicNicPNM_008.webp",
+    "name": "Teste",
+    "email": "teste@steste.com",
+    "reason": "teste",
+    "albumTitle": "Picnic PNM",
+    "at": "2026-07-27T10:01:52.779Z"
+  }
 }
