@@ -5,6 +5,7 @@ location: "A anunciar"
 tags:
   - "Picnic"
   - "Família"
+photosUrl: "/gallery#maternar-2026-05-03"
 external: false
 approved: true
 ---

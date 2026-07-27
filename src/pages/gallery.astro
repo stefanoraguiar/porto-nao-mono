@@ -84,7 +84,7 @@ const flatPhotos = sortedGalleries.flatMap((album) => album.resolvedPhotos);
   ) : (
     <div class="space-y-14">
       {sortedGalleries.map((album) => (
-        <section class="space-y-4">
+        <section id={album.id} class="space-y-4 scroll-mt-24">
           <!-- DATE & EVENT HEADER -->
           <div class="sticky top-16 z-30 bg-slate-50/95 backdrop-blur-md py-3 border-b border-slate-200 flex flex-wrap items-baseline justify-between gap-2">
             <div>
