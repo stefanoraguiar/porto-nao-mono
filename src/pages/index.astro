@@ -2,6 +2,13 @@
 // File: src/pages/index.astro
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import removedPhotosData from '../data/removed-photos.json';
+
+const removedUrls = new Set(
+  Array.isArray((removedPhotosData as { urls?: string[] }).urls)
+    ? (removedPhotosData as { urls: string[] }).urls
+    : []
+);
 
 // Fetch events, articles, and galleries
 const allEvents = (await getCollection('events')).filter(
@@ -33,8 +40,10 @@ const recentGalleries = allGalleries
   .sort((a, b) => new Date(b.data.eventDate).getTime() - new Date(a.data.eventDate).getTime())
   .slice(0, 3)
   .map((album) => {
-    const photos = album.data.photos || [];
-    const coverImg = photos.length > 0 ? getPhotoUrl(photos[0]) : '';
+    const photos = (album.data.photos || [])
+      .map(getPhotoUrl)
+      .filter((url) => url && !removedUrls.has(url));
+    const coverImg = photos[0] || '';
     const photoCount = photos.length;
     return { ...album, coverImg, photoCount };
   });
@@ -208,7 +217,7 @@ const galleryFallbackImage = "/images/uploads/2026-07-11-PicnicNaoMono_011.webp"
     </div>
 
     <a 
-      href="https://chat.whatsapp.com/" 
+      href="https://chat.whatsapp.com/HB86atlGVemLbqmKwsj7sf" 
       target="_blank" 
       rel="noopener noreferrer"
       class="bg-white text-emerald-900 hover:bg-emerald-50 font-extrabold px-8 py-4 rounded-xl shadow-lg transition shrink-0 transform hover:scale-105"

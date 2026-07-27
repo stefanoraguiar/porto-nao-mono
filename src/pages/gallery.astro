@@ -4,6 +4,13 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import fs from 'fs';
 import path from 'path';
+import removedPhotosData from '../data/removed-photos.json';
+
+const removedAtBuild = new Set(
+  Array.isArray((removedPhotosData as { urls?: string[] }).urls)
+    ? (removedPhotosData as { urls: string[] }).urls
+    : []
+);
 
 const allGalleries = await getCollection('galleries');
 
@@ -34,9 +41,12 @@ const sortedGalleries = allGalleries
     const rawManual = album.data.photos || [];
     const manualPhotos = rawManual
       .map((p: any) => (typeof p === 'string' ? { url: p, caption: '' } : { url: p.url || '', caption: p.caption || '' }))
-      .filter((p) => p.url);
+      .filter((p) => p.url)
+      .filter((p) => !removedAtBuild.has(p.url));
 
-    const basePhotos = folderPhotos.length > 0 ? folderPhotos : manualPhotos;
+    const basePhotos = (folderPhotos.length > 0 ? folderPhotos : manualPhotos).filter(
+      (p) => !removedAtBuild.has(p.url)
+    );
 
     const resolvedPhotos = basePhotos.map((photo) => {
       const index = globalPhotoIndex++;
@@ -236,7 +246,9 @@ const flatPhotos = sortedGalleries.flatMap((album) => album.resolvedPhotos);
       </div>
 
       <p class="text-xs text-slate-600 mb-4">
-        Respeitamos a tua privacidade. Ao submeter este pedido, a fotografia será <strong>ocultada imediatamente</strong> do álbum.
+        Respeitamos a tua privacidade. Ao submeter este pedido, a fotografia será
+        <strong>ocultada de imediato para todas as pessoas</strong> que visitam o site.
+        A equipa também recebe uma notificação para a remover permanentemente do repositório.
       </p>
 
       <form id="removal-form" name="photo-removal" method="POST" data-netlify="true" onsubmit="handleRemovalSubmit(event)">
@@ -303,19 +315,36 @@ const flatPhotos = sortedGalleries.flatMap((album) => album.resolvedPhotos);
   let currentIndex = 0;
   let activeFlatPhotos = [...flatPhotos];
 
-  // Hide photos previously flagged for removal in localStorage
-  function initHiddenPhotos() {
-    const hidden = JSON.parse(localStorage.getItem('hiddenPhotos') || '[]');
-    if (hidden.length > 0) {
-      activeFlatPhotos = activeFlatPhotos.filter(p => !hidden.includes(p.url));
-      
-      // Hide corresponding photo cards from grid
-      document.querySelectorAll('.photo-card').forEach(card => {
-        const url = card.getAttribute('data-photo-url');
-        if (hidden.includes(url)) {
-          card.style.display = 'none';
+  function applyHiddenUrls(hidden) {
+    if (!hidden || hidden.length === 0) return;
+    const hiddenSet = new Set(hidden);
+    activeFlatPhotos = activeFlatPhotos.filter((p) => !hiddenSet.has(p.url));
+
+    document.querySelectorAll('.photo-card').forEach((card) => {
+      const url = card.getAttribute('data-photo-url');
+      if (url && hiddenSet.has(url)) {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  // Hide photos flagged site-wide (live list) + local fallback
+  async function initHiddenPhotos() {
+    const localHidden = JSON.parse(localStorage.getItem('hiddenPhotos') || '[]');
+    applyHiddenUrls(localHidden);
+
+    try {
+      const res = await fetch('/.netlify/functions/removed-photos');
+      if (res.ok) {
+        const data = await res.json();
+        const urls = Array.isArray(data.urls) ? data.urls : [];
+        if (urls.length > 0) {
+          localStorage.setItem('hiddenPhotos', JSON.stringify([...new Set([...localHidden, ...urls])]));
+          applyHiddenUrls(urls);
         }
-      });
+      }
+    } catch {
+      // Offline / local static preview — localStorage only
     }
   }
 
@@ -348,7 +377,7 @@ const flatPhotos = sortedGalleries.flatMap((album) => album.resolvedPhotos);
 
     counter.textContent = `${currentIndex + 1} / ${activeFlatPhotos.length}`;
     downloadBtn.href = photo.url;
-    
+
     const fileName = photo.url.split('/').pop() || 'fotografia.jpg';
     downloadBtn.setAttribute('download', fileName);
   }
@@ -407,7 +436,6 @@ const flatPhotos = sortedGalleries.flatMap((album) => album.resolvedPhotos);
     }
   };
 
-  // REMOVAL MODAL LOGIC
   window.openRemovalModal = function(e) {
     e.stopPropagation();
     const photo = activeFlatPhotos[currentIndex];
@@ -425,52 +453,77 @@ const flatPhotos = sortedGalleries.flatMap((album) => album.resolvedPhotos);
     modal.classList.add('hidden');
   };
 
-  window.handleRemovalSubmit = function(e) {
+  window.handleRemovalSubmit = async function(e) {
     e.preventDefault();
     const photo = activeFlatPhotos[currentIndex];
     if (!photo) return;
 
     const form = e.target;
     const formData = new FormData(form);
+    const name = String(formData.get('name') || '').trim();
+    const email = String(formData.get('email') || '').trim();
+    const reason = String(formData.get('reason') || '').trim();
+    const albumTitle = String(formData.get('albumTitle') || photo.albumTitle || '').trim();
 
-    // 1. Submit to Netlify Forms via background fetch
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+
+    let persisted = false;
+    try {
+      const res = await fetch('/.netlify/functions/removed-photos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          photoUrl: photo.url,
+          name,
+          email,
+          reason,
+          albumTitle,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        persisted = Boolean(data?.ok);
+        if (Array.isArray(data?.urls)) {
+          localStorage.setItem('hiddenPhotos', JSON.stringify(data.urls));
+        }
+      }
+    } catch {
+      // Function unavailable (e.g. pure local static)
+    }
+
     fetch('/', {
       method: 'POST',
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams(formData).toString()
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(formData).toString(),
     }).catch(() => {});
 
-    // 2. Save photo URL into localStorage hidden list
     const hidden = JSON.parse(localStorage.getItem('hiddenPhotos') || '[]');
     if (!hidden.includes(photo.url)) {
       hidden.push(photo.url);
       localStorage.setItem('hiddenPhotos', JSON.stringify(hidden));
     }
 
-    // 3. Immediately hide photo from DOM grid
-    document.querySelectorAll('.photo-card').forEach(card => {
-      if (card.getAttribute('data-photo-url') === photo.url) {
-        card.style.display = 'none';
-      }
-    });
+    applyHiddenUrls([photo.url]);
 
-    // 4. Remove photo from active lightbox list
-    activeFlatPhotos = activeFlatPhotos.filter(p => p.url !== photo.url);
-
-    // 5. Close removal modal & alert user
     window.closeRemovalModal();
-    alert('Pedido enviado com sucesso! A fotografia foi ocultada imediatamente do álbum.');
+    alert(
+      persisted
+        ? 'Pedido enviado! A fotografia foi ocultada para todas as visitas ao site.'
+        : 'Pedido enviado. A fotografia foi ocultada neste dispositivo; a equipa irá concluir a remoção global.'
+    );
 
-    // 6. Refresh or close lightbox
     if (activeFlatPhotos.length === 0) {
       window.closeLightbox();
     } else {
-      currentIndex = currentIndex % activeFlatPhotos.length;
+      currentIndex = Math.min(currentIndex, activeFlatPhotos.length - 1);
       updateLightbox();
     }
+
+    if (submitBtn) submitBtn.disabled = false;
+    form.reset();
   };
 
-  // Keyboard Navigation
   document.addEventListener('keydown', (e) => {
     const removalModal = document.getElementById('removal-modal');
     if (removalModal && !removalModal.classList.contains('hidden')) {
@@ -486,6 +539,5 @@ const flatPhotos = sortedGalleries.flatMap((album) => album.resolvedPhotos);
     if (e.key === 'ArrowLeft') window.prevPhoto();
   });
 
-  // Run on load
   initHiddenPhotos();
 </script>
