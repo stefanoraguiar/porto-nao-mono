@@ -146,3 +146,50 @@ collections:
       - { label: "Sugerido por (nome)", name: "suggestedBy", widget: "string", required: false }
       - { label: "Sugerido por (e-mail)", name: "suggestedEmail", widget: "string", required: false }
       - { label: "Bio / Apresentação", name: "body", widget: "markdown", required: false }
+
+  # 5. BIBLIOTECA
+  - name: "books"
+    label: "Biblioteca"
+    folder: "src/content/books"
+    create: true
+    slug: "{{slug}}"
+    summary: "{{title}} {{approved}}"
+    fields:
+      - { label: "Aprovado / Publicado", name: "approved", widget: "boolean", default: true, hint: "Desmarca para manter como pendente. Sugestões da comunidade entram automaticamente como não aprovadas." }
+      - { label: "Título", name: "title", widget: "string" }
+      - { label: "Capa", name: "image", widget: "image", required: false }
+      - { label: "Link", name: "link", widget: "string", hint: "URL para comprar, ler ou saber mais sobre o livro" }
+      - { label: "Descrição curta", name: "description", widget: "text", hint: "Uma ou duas frases sobre o livro" }
+      - label: "Etiquetas"
+        name: "tags"
+        widget: "select"
+        multiple: true
+        required: false
+        options: ["Acesso livre", "Comercial"]
+        hint: "Marca se o link é de acesso livre (legal/gratuito) ou comercial (compra)."
+      - { label: "Sugerido por (nome)", name: "suggestedBy", widget: "string", required: false }
+      - { label: "Sugerido por (e-mail)", name: "suggestedEmail", widget: "string", required: false }
+
+  # 5b. BIBLIOTECA PENDENTE
+  - name: "pending-books"
+    label: "Biblioteca Pendente"
+    folder: "src/content/books"
+    create: false
+    slug: "{{slug}}"
+    filter:
+      field: approved
+      value: false
+    fields:
+      - { label: "Aprovado / Publicado", name: "approved", widget: "boolean", default: false, hint: "Marca para publicar o livro no site (após o próximo deploy)." }
+      - { label: "Título", name: "title", widget: "string" }
+      - { label: "Capa", name: "image", widget: "image", required: false }
+      - { label: "Link", name: "link", widget: "string", required: false }
+      - { label: "Descrição curta", name: "description", widget: "text", required: false }
+      - label: "Etiquetas"
+        name: "tags"
+        widget: "select"
+        multiple: true
+        required: false
+        options: ["Acesso livre", "Comercial"]
+      - { label: "Sugerido por (nome)", name: "suggestedBy", widget: "string", required: false }
+      - { label: "Sugerido por (e-mail)", name: "suggestedEmail", widget: "string", required: false }

@@ -1,0 +1,537 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getWebmasterEmails } from '../data/webmasters';
+
+const webmasterEmails = getWebmasterEmails().join(', ');
+
+function normalizeSearch(text: string) {
+  return text
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLocaleLowerCase('pt');
+}
+
+const books = (await getCollection('books'))
+  .filter((book) => book.data.approved !== false)
+  .sort((a, b) => a.data.title.localeCompare(b.data.title, 'pt'));
+
+const allTags = [
+  ...new Set(books.flatMap((book) => book.data.tags ?? [])),
+].sort((a, b) => a.localeCompare(b, 'pt'));
+---
+
+<BaseLayout title="Biblioteca">
+  <header class="mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div class="max-w-2xl">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+          Biblioteca
+        </h1>
+        <p class="text-slate-600 mt-2 leading-relaxed">
+          Livros e leituras sobre não-monogamia ética, poliamor e relações conscientes —
+          para explorar ao teu ritmo.
+        </p>
+      </div>
+      <button
+        type="button"
+        id="open-suggest-book"
+        class="shrink-0 inline-flex items-center justify-center bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-700 hover:to-purple-700 text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-md transition"
+      >
+        Sugerir livro
+      </button>
+    </div>
+  </header>
+
+  {books.length === 0 ? (
+    <div class="rounded-2xl border border-slate-200 bg-white px-6 py-12 text-center text-slate-500 text-sm">
+      Ainda não há livros na biblioteca. Em breve acrescentamos recomendações.
+    </div>
+  ) : (
+    <>
+      <div class="mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
+        <div class="relative flex-1 max-w-md">
+          <label for="book-search" class="sr-only">Pesquisar livros</label>
+          <svg
+            class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m21 21-4.35-4.35m1.6-5.4a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"
+            />
+          </svg>
+          <input
+            id="book-search"
+            type="search"
+            placeholder="Pesquisar por título ou descrição…"
+            autocomplete="off"
+            class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 shadow-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 transition"
+          />
+        </div>
+
+        {allTags.length > 0 && (
+          <div
+            class="flex flex-wrap gap-1.5"
+            id="book-tag-filters"
+            role="group"
+            aria-label="Filtrar por etiqueta"
+          >
+            <button
+              type="button"
+              data-tag=""
+              class="book-tag-btn is-active rounded-full border px-2.5 py-1 text-[11px] font-semibold transition border-indigo-600 bg-indigo-600 text-white"
+            >
+              Todas
+            </button>
+            {allTags.map((tag) => (
+              <button
+                type="button"
+                data-tag={tag}
+                class="book-tag-btn rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:border-indigo-300 hover:text-indigo-700 transition"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <p id="book-filter-status" class="mb-3 text-xs text-slate-500" aria-live="polite"></p>
+
+      <ul id="book-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 list-none p-0 m-0">
+        {books.map((book) => {
+          const hasLink = Boolean(book.data.link);
+          const CardTag = hasLink ? 'a' : 'div';
+          const cardProps = hasLink
+            ? {
+                href: book.data.link,
+                target: '_blank',
+                rel: 'noopener noreferrer',
+              }
+            : {};
+          const searchText = normalizeSearch(
+            [book.data.title, book.data.description, ...(book.data.tags ?? [])].join(' ')
+          );
+
+          return (
+            <li
+              data-search={searchText}
+              data-tags={(book.data.tags ?? []).join('|')}
+            >
+              <CardTag
+                {...cardProps}
+                class="group flex flex-col h-full rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md hover:border-indigo-200 transition"
+              >
+                <div class="aspect-[2/3] max-h-64 sm:max-h-72 bg-slate-100 overflow-hidden relative">
+                  {book.data.image ? (
+                    <img
+                      src={book.data.image}
+                      alt={`Capa de ${book.data.title}`}
+                      class="h-full w-full object-cover group-hover:scale-[1.02] transition duration-300"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div class="h-full w-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-indigo-50 to-rose-50 text-indigo-300">
+                      <svg
+                        class="h-12 w-12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        aria-hidden="true"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5V6.5A2.5 2.5 0 016.5 4H20v13H6.5A2.5 2.5 0 004 19.5z"
+                        />
+                      </svg>
+                      <span class="text-xs font-medium text-indigo-400">Sem capa</span>
+                    </div>
+                  )}
+                </div>
+
+                <div class="flex flex-col flex-1 p-5 gap-2">
+                  {(book.data.tags?.length ?? 0) > 0 && (
+                    <div class="flex flex-wrap gap-1.5">
+                      {book.data.tags.map((tag) => {
+                        const isFree = tag.toLowerCase().includes('livre');
+                        return (
+                          <span
+                            class:list={[
+                              'rounded-full border px-2.5 py-0.5 text-[11px] font-semibold',
+                              isFree
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                : 'bg-slate-100 text-slate-700 border-slate-200',
+                            ]}
+                          >
+                            {tag}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <h2 class="text-lg font-bold text-slate-900 leading-snug group-hover:text-indigo-700 transition">
+                    {book.data.title}
+                  </h2>
+                  {book.data.description && (
+                    <p class="text-sm text-slate-600 leading-relaxed flex-1">
+                      {book.data.description}
+                    </p>
+                  )}
+                  {hasLink && (
+                    <span class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-indigo-600">
+                      {book.data.tags?.some((t) => t.toLowerCase().includes('livre'))
+                        ? 'Ler grátis'
+                        : 'Ver livro'}
+                      <span aria-hidden="true">↗</span>
+                    </span>
+                  )}
+                </div>
+              </CardTag>
+            </li>
+          );
+        })}
+      </ul>
+
+      <p
+        id="book-empty"
+        class="hidden rounded-2xl border border-slate-200 bg-white px-6 py-12 text-center text-slate-500 text-sm"
+      >
+        Nenhum livro corresponde à pesquisa ou filtro.
+      </p>
+    </>
+  )}
+
+  <form
+    name="book-suggestion"
+    method="POST"
+    data-netlify="true"
+    netlify-honeypot="website_url"
+    class="hidden"
+    aria-hidden="true"
+  >
+    <input type="hidden" name="form-name" value="book-suggestion" />
+    <input name="title" />
+    <input name="link" />
+    <input name="description" />
+    <input name="tags" />
+    <input name="suggestedBy" />
+    <input name="suggestedEmail" />
+    <input name="website_url" />
+  </form>
+
+  <div
+    id="suggest-book-modal"
+    class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="suggest-book-title"
+  >
+    <div class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl border border-slate-200">
+      <div class="sticky top-0 flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-200 bg-white">
+        <h2 id="suggest-book-title" class="text-lg font-extrabold text-slate-900">Sugerir livro</h2>
+        <button
+          type="button"
+          id="close-suggest-book"
+          class="h-8 w-8 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition"
+          aria-label="Fechar"
+        >
+          ×
+        </button>
+      </div>
+
+      <form id="suggest-book-form" class="p-5 space-y-4" data-webmaster-emails={webmasterEmails}>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          A tua sugestão fica pendente até uma pessoa webmaster aprovar no painel de administração.
+        </p>
+
+        <div>
+          <label for="book-suggest-title" class="block text-xs font-bold text-slate-700 mb-1">Título *</label>
+          <input
+            id="book-suggest-title"
+            name="title"
+            type="text"
+            required
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
+          />
+        </div>
+
+        <div>
+          <label for="book-suggest-link" class="block text-xs font-bold text-slate-700 mb-1">Link</label>
+          <input
+            id="book-suggest-link"
+            name="link"
+            type="url"
+            placeholder="https:// — compra, PDF legal ou página do livro"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
+          />
+        </div>
+
+        <div>
+          <label for="book-suggest-description" class="block text-xs font-bold text-slate-700 mb-1">Descrição curta</label>
+          <textarea
+            id="book-suggest-description"
+            name="description"
+            rows="3"
+            placeholder="Uma ou duas frases sobre o livro"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 resize-y"
+          ></textarea>
+        </div>
+
+        <fieldset>
+          <legend class="block text-xs font-bold text-slate-700 mb-2">Etiquetas</legend>
+          <div class="flex flex-wrap gap-4">
+            <label class="inline-flex items-center gap-2 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                name="tag"
+                value="Acesso livre"
+                class="rounded border-slate-300"
+              />
+              Acesso livre
+            </label>
+            <label class="inline-flex items-center gap-2 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                name="tag"
+                value="Comercial"
+                class="rounded border-slate-300"
+              />
+              Comercial
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label for="book-suggest-by" class="block text-xs font-bold text-slate-700 mb-1">O teu nome *</label>
+            <input
+              id="book-suggest-by"
+              name="suggestedBy"
+              type="text"
+              required
+              class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
+            />
+          </div>
+          <div>
+            <label for="book-suggest-email" class="block text-xs font-bold text-slate-700 mb-1">O teu e-mail *</label>
+            <input
+              id="book-suggest-email"
+              name="suggestedEmail"
+              type="email"
+              required
+              class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
+            />
+          </div>
+        </div>
+
+        <div class="hidden" aria-hidden="true">
+          <label for="book-suggest-honeypot">Website</label>
+          <input id="book-suggest-honeypot" name="website_url" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <p id="suggest-book-status" class="hidden text-sm" role="status"></p>
+
+        <div class="flex flex-col sm:flex-row gap-3 pt-1">
+          <button
+            type="submit"
+            id="suggest-book-submit"
+            class="inline-flex items-center justify-center bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-700 hover:to-purple-700 text-white font-bold px-5 py-3 rounded-xl shadow-md transition"
+          >
+            Enviar sugestão
+          </button>
+          <button
+            type="button"
+            id="cancel-suggest-book"
+            class="inline-flex items-center justify-center bg-white border border-slate-200 text-slate-700 font-bold px-5 py-3 rounded-xl hover:bg-slate-50 transition"
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const normalize = (text: string) =>
+    text
+      .normalize('NFD')
+      .replace(/\p{M}/gu, '')
+      .toLocaleLowerCase('pt');
+
+  const searchInput = document.getElementById('book-search') as HTMLInputElement | null;
+  const listEl = document.getElementById('book-list');
+  const emptyEl = document.getElementById('book-empty');
+  const statusEl = document.getElementById('book-filter-status');
+  const tagButtons = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('.book-tag-btn')
+  );
+
+  if (listEl) {
+    const items = Array.from(listEl.querySelectorAll<HTMLElement>(':scope > li'));
+    let selectedTag = '';
+
+    const applyFilters = () => {
+      const query = normalize(searchInput?.value.trim() ?? '');
+      let visible = 0;
+
+      for (const item of items) {
+        const haystack = item.dataset.search ?? '';
+        const tags = (item.dataset.tags ?? '').split('|').filter(Boolean);
+        const matchesSearch = !query || haystack.includes(query);
+        const matchesTag = !selectedTag || tags.includes(selectedTag);
+        const match = matchesSearch && matchesTag;
+
+        item.hidden = !match;
+        if (match) visible += 1;
+      }
+
+      if (emptyEl) emptyEl.classList.toggle('hidden', visible > 0);
+      listEl.classList.toggle('hidden', visible === 0);
+
+      if (statusEl) {
+        const parts: string[] = [];
+        if (query) parts.push(`pesquisa “${searchInput?.value.trim()}”`);
+        if (selectedTag) parts.push(`etiqueta “${selectedTag}”`);
+
+        if (parts.length === 0) {
+          statusEl.textContent = '';
+        } else {
+          statusEl.textContent =
+            visible === 1
+              ? `1 livro · ${parts.join(' · ')}`
+              : `${visible} livros · ${parts.join(' · ')}`;
+        }
+      }
+    };
+
+    searchInput?.addEventListener('input', applyFilters);
+
+    for (const btn of tagButtons) {
+      btn.addEventListener('click', () => {
+        selectedTag = btn.dataset.tag ?? '';
+        for (const other of tagButtons) {
+          const active = other === btn;
+          other.classList.toggle('is-active', active);
+          other.classList.toggle('border-indigo-600', active);
+          other.classList.toggle('bg-indigo-600', active);
+          other.classList.toggle('text-white', active);
+          other.classList.toggle('border-slate-200', !active);
+          other.classList.toggle('bg-white', !active);
+          other.classList.toggle('text-slate-600', !active);
+        }
+        applyFilters();
+      });
+    }
+  }
+
+  // Suggest book modal
+  const suggestModal = document.getElementById('suggest-book-modal');
+  const suggestForm = document.getElementById('suggest-book-form') as HTMLFormElement | null;
+  const suggestStatus = document.getElementById('suggest-book-status');
+  const suggestSubmit = document.getElementById('suggest-book-submit') as HTMLButtonElement | null;
+  const openSuggest = document.getElementById('open-suggest-book');
+  const closeSuggest = document.getElementById('close-suggest-book');
+  const cancelSuggest = document.getElementById('cancel-suggest-book');
+
+  const setSuggestOpen = (open: boolean) => {
+    if (!suggestModal) return;
+    suggestModal.classList.toggle('hidden', !open);
+    suggestModal.classList.toggle('flex', open);
+    document.body.classList.toggle('overflow-hidden', open);
+  };
+
+  openSuggest?.addEventListener('click', () => setSuggestOpen(true));
+  closeSuggest?.addEventListener('click', () => setSuggestOpen(false));
+  cancelSuggest?.addEventListener('click', () => setSuggestOpen(false));
+  suggestModal?.addEventListener('click', (e) => {
+    if (e.target === suggestModal) setSuggestOpen(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && suggestModal && !suggestModal.classList.contains('hidden')) {
+      setSuggestOpen(false);
+    }
+  });
+
+  suggestForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!suggestForm || !suggestStatus || !suggestSubmit) return;
+
+    const fd = new FormData(suggestForm);
+    const tags = fd
+      .getAll('tag')
+      .map((t) => String(t).trim())
+      .filter(Boolean);
+
+    const payload = {
+      title: String(fd.get('title') || '').trim(),
+      link: String(fd.get('link') || '').trim(),
+      description: String(fd.get('description') || '').trim(),
+      tags,
+      suggestedBy: String(fd.get('suggestedBy') || '').trim(),
+      suggestedEmail: String(fd.get('suggestedEmail') || '').trim(),
+      website_url: String(fd.get('website_url') || '').trim(),
+    };
+
+    suggestSubmit.disabled = true;
+    suggestStatus.classList.remove('hidden', 'text-emerald-700', 'text-rose-700');
+    suggestStatus.classList.add('text-slate-600');
+    suggestStatus.textContent = 'A enviar sugestão…';
+
+    let createdPending = false;
+
+    try {
+      const fnRes = await fetch('/.netlify/functions/suggest-book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (fnRes.ok) {
+        const result = await fnRes.json();
+        createdPending = Boolean(result?.ok);
+      }
+    } catch {
+      // Function unavailable locally
+    }
+
+    try {
+      const body = new URLSearchParams({
+        'form-name': 'book-suggestion',
+        title: payload.title,
+        link: payload.link,
+        description: payload.description,
+        tags: payload.tags.join(', '),
+        suggestedBy: payload.suggestedBy,
+        suggestedEmail: payload.suggestedEmail,
+        website_url: payload.website_url,
+        pendingCreated: createdPending ? 'sim' : 'não',
+        notifyEmails: suggestForm.dataset.webmasterEmails || '',
+      });
+
+      await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
+      });
+    } catch {
+      // Forms may fail in pure local static preview
+    }
+
+    suggestStatus.classList.remove('text-slate-600');
+    suggestStatus.classList.add('text-emerald-700');
+    suggestStatus.textContent = createdPending
+      ? 'Sugestão enviada! Ficou pendente de aprovação no painel de administração.'
+      : 'Sugestão enviada! A equipa vai rever e publicar se fizer sentido.';
+    suggestForm.reset();
+    suggestSubmit.disabled = false;
+  });
+</script>

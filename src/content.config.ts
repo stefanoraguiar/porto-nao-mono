@@ -63,4 +63,18 @@ const galleries = defineCollection({
   }),
 });
 
-export const collections = { articles, events, professionals, galleries };
+const books = defineCollection({
+  loader: glob({ pattern: '**/[^_]*.md', base: './src/content/books' }),
+  schema: z.object({
+    title: z.string().default('Sem Título'),
+    image: z.string().optional().default(''),
+    link: z.string().optional().default(''),
+    description: z.string().default(''),
+    tags: z.array(z.string()).optional().default([]),
+    approved: z.boolean().optional().default(true),
+    suggestedBy: z.string().optional().default(''),
+    suggestedEmail: z.string().optional().default(''),
+  }),
+});
+
+export const collections = { articles, events, professionals, galleries, books };

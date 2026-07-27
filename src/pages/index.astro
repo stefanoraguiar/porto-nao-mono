@@ -23,8 +23,17 @@ const sortedEvents = allEvents.sort(
 );
 
 const now = new Date();
-const upcomingEvents = sortedEvents.filter((e) => new Date(e.data.eventDate) >= now);
-const nextEvent = upcomingEvents[0] || sortedEvents[sortedEvents.length - 1];
+
+function isTertulia(event: (typeof allEvents)[number]) {
+  const tags = event.data.tags ?? [];
+  return tags.some((tag) => tag.toLowerCase().includes('tertúl'));
+}
+
+// Destaque: only the next upcoming Tertúlia (never past events, never other types)
+const nextEvent =
+  sortedEvents.find(
+    (e) => new Date(e.data.eventDate) >= now && isTertulia(e)
+  ) ?? null;
 
 // Get 3 most recent articles
 const recentArticles = allArticles
@@ -104,7 +113,7 @@ const galleryFallbackImage = "/images/uploads/2026-07-11-PicnicNaoMono_011.webp"
         </p>
         <div class="flex flex-wrap gap-3 pt-1">
           <a
-            href="#proximo-encontro"
+            href={nextEvent ? '#proximo-encontro' : '/events'}
             class="bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-500 hover:to-purple-500 text-white font-bold px-6 py-3.5 rounded-xl shadow-lg transition transform hover:-translate-y-0.5"
           >
             Próximos eventos
@@ -120,21 +129,19 @@ const galleryFallbackImage = "/images/uploads/2026-07-11-PicnicNaoMono_011.webp"
     </div>
   </section>
 
-  <!-- 2. SPOTLIGHT: NEXT EVENT (COLORFUL GRADIENT CARD) -->
-  <section id="proximo-encontro" class="scroll-mt-20 my-12">
-    <div class="relative bg-gradient-to-br from-purple-900 via-indigo-900 to-rose-950 text-white rounded-3xl p-8 md:p-12 shadow-2xl overflow-hidden border border-purple-500/20">
-      
-      <!-- Background Glow Effect -->
-      <div class="absolute -top-24 -right-24 w-72 h-72 bg-rose-500/30 rounded-full blur-3xl"></div>
-      <div class="absolute -bottom-24 -left-24 w-72 h-72 bg-purple-500/30 rounded-full blur-3xl"></div>
+  <!-- 2. SPOTLIGHT: next upcoming Tertúlia only (hidden if none) -->
+  {nextEvent && (
+    <section id="proximo-encontro" class="scroll-mt-20 my-12">
+      <div class="relative bg-gradient-to-br from-purple-900 via-indigo-900 to-rose-950 text-white rounded-3xl p-8 md:p-12 shadow-2xl overflow-hidden border border-purple-500/20">
+        <div class="absolute -top-24 -right-24 w-72 h-72 bg-rose-500/30 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-24 -left-24 w-72 h-72 bg-purple-500/30 rounded-full blur-3xl"></div>
 
-      <div class="relative z-10">
-        <div class="inline-flex items-center gap-2 bg-rose-500/20 text-rose-200 border border-rose-400/30 font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wider mb-4">
-          <span class="w-2 h-2 rounded-full bg-rose-400 animate-ping"></span>
-          Destaque / Próxima Tertúlia
-        </div>
+        <div class="relative z-10">
+          <div class="inline-flex items-center gap-2 bg-rose-500/20 text-rose-200 border border-rose-400/30 font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wider mb-4">
+            <span class="w-2 h-2 rounded-full bg-rose-400 animate-ping"></span>
+            Destaque / Próxima Tertúlia
+          </div>
 
-        {nextEvent ? (
           <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div class="space-y-3 max-w-2xl">
               <h2 class="text-3xl sm:text-4xl font-extrabold text-white leading-snug">
@@ -150,19 +157,17 @@ const galleryFallbackImage = "/images/uploads/2026-07-11-PicnicNaoMono_011.webp"
               </div>
             </div>
 
-            <a 
-              href="/events" 
+            <a
+              href={`/events/${nextEvent.id}`}
               class="inline-flex items-center justify-center bg-white text-purple-950 hover:bg-rose-50 font-extrabold px-6 py-4 rounded-xl shadow-lg transition shrink-0 transform hover:scale-105"
             >
-              Ver Agenda Completa →
+              Ver detalhes →
             </a>
           </div>
-        ) : (
-          <p class="text-purple-200">Sem novos eventos agendados de momento.</p>
-        )}
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  )}
 
   <!-- 3. INCLUSIVE VALUES (COLORFUL CARDS) -->
   <section class="my-16">
