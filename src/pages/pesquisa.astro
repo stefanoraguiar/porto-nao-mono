@@ -1,0 +1,313 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SURVEY_ID, questions } from '../data/pesquisa-instrument.mjs';
+---
+
+<BaseLayout title="Pesquisa comunitária" noindex={true}>
+  <div class="mb-8 max-w-2xl">
+    <p class="text-xs font-semibold uppercase tracking-wide text-indigo-600 mb-2">Mapa da comunidade</p>
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Pesquisa anónima</h1>
+    <p class="text-slate-600 mt-2 leading-relaxed">
+      Respostas voluntárias, sem dados pessoais. Precisas de um código de convite de uso único.
+    </p>
+  </div>
+
+  <div
+    id="pesquisa-app"
+    class="max-w-xl"
+    data-survey-id={SURVEY_ID}
+    data-questions={JSON.stringify(questions)}
+  >
+    <!-- Step: code -->
+    <section id="step-code" class="space-y-5">
+      <label class="block space-y-2">
+        <span class="text-sm font-semibold text-slate-800">Código de convite</span>
+        <input
+          type="text"
+          id="invite-code"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="PNM-XXXX-XXXX"
+          class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-mono tracking-wider uppercase text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        />
+      </label>
+      <p class="text-sm text-slate-500 leading-relaxed">
+        O código foi-te partilhado em privado. Só pode ser usado uma vez e não fica associado às tuas respostas.
+      </p>
+      <button
+        type="button"
+        id="btn-code-next"
+        class="inline-flex items-center justify-center rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-sm font-bold px-5 py-2.5 shadow-sm transition"
+      >
+        Continuar
+      </button>
+    </section>
+
+    <!-- Step: consent -->
+    <section id="step-consent" class="hidden space-y-5">
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 space-y-3 text-sm text-slate-600 leading-relaxed">
+        <h2 class="text-lg font-bold text-slate-900">Antes de começares</h2>
+        <p>
+          Esta pesquisa é um <strong class="font-semibold text-slate-800">retrato anónimo</strong> da comunidade.
+          Não pedimos nome, contacto, idade exacta nem texto livre.
+        </p>
+        <ul class="list-disc pl-5 space-y-1.5">
+          <li>O código de convite é validado e invalidado no envio; o código <em>não</em> é guardado junto com as respostas.</li>
+          <li>Guardamos apenas contagens agregadas (ex.: quantas pessoas escolheram cada opção).</li>
+          <li>Os gráficos públicos só aparecem com um número mínimo de respostas e categorias muito pequenas ficam ocultas.</li>
+          <li>
+            Como não tratamos dados que identifiquem uma pessoa, este exercício visa estatísticas anónimas
+            (fora do âmbito típico de “dados pessoais” no RGPD). A participação é voluntária.
+          </li>
+        </ul>
+        <p class="text-xs text-slate-500">
+          Isto não constitui aconselhamento jurídico.
+          <a href="/pesquisa/metodologia" class="text-indigo-700 hover:underline">Ler a nota de metodologia</a>.
+        </p>
+      </div>
+      <label class="flex items-start gap-3 cursor-pointer">
+        <input
+          type="checkbox"
+          id="consent-check"
+          class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-700 focus:ring-indigo-500"
+        />
+        <span class="text-sm text-slate-700 leading-relaxed">
+          Li a informação acima e quero participar de forma voluntária e anónima.
+        </span>
+      </label>
+      <div class="flex flex-wrap gap-3">
+        <button
+          type="button"
+          id="btn-consent-back"
+          class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold px-5 py-2.5 transition"
+        >
+          Voltar
+        </button>
+        <button
+          type="button"
+          id="btn-consent-next"
+          class="inline-flex items-center justify-center rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-sm font-bold px-5 py-2.5 shadow-sm transition disabled:opacity-40 disabled:pointer-events-none"
+          disabled
+        >
+          Começar perguntas
+        </button>
+      </div>
+    </section>
+
+    <!-- Step: questions -->
+    <section id="step-questions" class="hidden space-y-5">
+      <div class="flex items-center justify-between gap-3 text-xs text-slate-500">
+        <span id="progress-label">Pergunta 1</span>
+        <div class="flex-1 h-1.5 rounded-full bg-slate-200 overflow-hidden max-w-[12rem]">
+          <div id="progress-bar" class="h-full bg-indigo-600 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+      <fieldset id="question-fieldset" class="space-y-4">
+        <legend id="question-label" class="text-lg font-bold text-slate-900"></legend>
+        <div id="question-options" class="space-y-2"></div>
+      </fieldset>
+      <p id="question-error" class="hidden text-sm text-rose-700">Escolhe uma opção para continuar.</p>
+      <div class="flex flex-wrap gap-3">
+        <button
+          type="button"
+          id="btn-q-back"
+          class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold px-5 py-2.5 transition"
+        >
+          Voltar
+        </button>
+        <button
+          type="button"
+          id="btn-q-next"
+          class="inline-flex items-center justify-center rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-sm font-bold px-5 py-2.5 shadow-sm transition"
+        >
+          Seguinte
+        </button>
+      </div>
+    </section>
+
+    <!-- Step: submit / result -->
+    <section id="step-done" class="hidden space-y-4">
+      <div id="done-success" class="hidden rounded-2xl border border-emerald-200 bg-emerald-50 p-6 space-y-2">
+        <h2 class="text-xl font-bold text-emerald-900">Obrigado</h2>
+        <p class="text-sm text-emerald-800 leading-relaxed">
+          A tua resposta foi registada apenas como contagens agregadas. O código de convite ficou inválido.
+        </p>
+        <a href="/quem-somos" class="inline-block text-sm font-semibold text-indigo-700 hover:underline pt-1">
+          Ver Quem Somos
+        </a>
+      </div>
+      <div id="done-error" class="hidden rounded-2xl border border-rose-200 bg-rose-50 p-6 space-y-2">
+        <h2 class="text-xl font-bold text-rose-900">Não foi possível enviar</h2>
+        <p id="done-error-msg" class="text-sm text-rose-800 leading-relaxed"></p>
+        <button
+          type="button"
+          id="btn-restart"
+          class="inline-flex items-center justify-center rounded-xl border border-rose-300 bg-white hover:bg-rose-50 text-rose-800 text-sm font-semibold px-4 py-2 transition"
+        >
+          Tentar de novo
+        </button>
+      </div>
+      <div id="done-loading" class="hidden text-sm text-slate-600">A enviar resposta anónima…</div>
+    </section>
+  </div>
+
+  <!-- honeypot kept off-DOM flow via JS payload only -->
+</BaseLayout>
+
+<script>
+  const root = document.getElementById('pesquisa-app');
+  if (root) {
+    const questions = JSON.parse(root.dataset.questions || '[]') as Array<{
+      id: string;
+      label: string;
+      options: Array<{ id: string; label: string }>;
+    }>;
+
+    const steps = {
+      code: document.getElementById('step-code')!,
+      consent: document.getElementById('step-consent')!,
+      questions: document.getElementById('step-questions')!,
+      done: document.getElementById('step-done')!,
+    };
+
+    let inviteCode = '';
+    let consent = false;
+    let qIndex = 0;
+    const answers: Record<string, string> = {};
+
+    function showStep(name: keyof typeof steps) {
+      (Object.keys(steps) as Array<keyof typeof steps>).forEach((key) => {
+        steps[key].classList.toggle('hidden', key !== name);
+      });
+    }
+
+    function renderQuestion() {
+      const q = questions[qIndex];
+      const label = document.getElementById('question-label')!;
+      const optionsEl = document.getElementById('question-options')!;
+      const progressLabel = document.getElementById('progress-label')!;
+      const progressBar = document.getElementById('progress-bar')!;
+      const nextBtn = document.getElementById('btn-q-next')!;
+      const err = document.getElementById('question-error')!;
+
+      label.textContent = q.label;
+      progressLabel.textContent = `Pergunta ${qIndex + 1} de ${questions.length}`;
+      progressBar.style.width = `${((qIndex + 1) / questions.length) * 100}%`;
+      nextBtn.textContent = qIndex === questions.length - 1 ? 'Enviar' : 'Seguinte';
+      err.classList.add('hidden');
+
+      optionsEl.innerHTML = '';
+      q.options.forEach((opt) => {
+        const id = `opt-${q.id}-${opt.id}`;
+        const wrap = document.createElement('label');
+        wrap.className =
+          'flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 cursor-pointer hover:border-indigo-300 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50 transition';
+        wrap.innerHTML = `
+          <input type="radio" name="q-${q.id}" value="${opt.id}" id="${id}" class="h-4 w-4 text-indigo-700 border-slate-300 focus:ring-indigo-500" ${
+            answers[q.id] === opt.id ? 'checked' : ''
+          } />
+          <span class="text-sm text-slate-800">${opt.label}</span>
+        `;
+        optionsEl.appendChild(wrap);
+      });
+    }
+
+    async function submit() {
+      showStep('done');
+      document.getElementById('done-success')!.classList.add('hidden');
+      document.getElementById('done-error')!.classList.add('hidden');
+      document.getElementById('done-loading')!.classList.remove('hidden');
+
+      try {
+        const res = await fetch('/.netlify/functions/pesquisa-submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: inviteCode,
+            consent: true,
+            answers,
+            website_url: '',
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        document.getElementById('done-loading')!.classList.add('hidden');
+
+        if (res.ok && data.ok) {
+          document.getElementById('done-success')!.classList.remove('hidden');
+          return;
+        }
+
+        const reason = data.reason || '';
+        let msg = data.error || 'Ocorreu um erro. Tenta mais tarde.';
+        if (reason === 'invalid') msg = 'O código de convite não é válido.';
+        if (reason === 'used') msg = 'Este código já foi utilizado. Cada convite só serve uma vez.';
+        document.getElementById('done-error-msg')!.textContent = msg;
+        document.getElementById('done-error')!.classList.remove('hidden');
+      } catch {
+        document.getElementById('done-loading')!.classList.add('hidden');
+        document.getElementById('done-error-msg')!.textContent =
+          'Não foi possível contactar o servidor. Verifica a ligação e tenta de novo.';
+        document.getElementById('done-error')!.classList.remove('hidden');
+      }
+    }
+
+    document.getElementById('btn-code-next')!.addEventListener('click', () => {
+      const input = document.getElementById('invite-code') as HTMLInputElement;
+      inviteCode = (input.value || '').trim().toUpperCase();
+      if (!inviteCode) {
+        input.focus();
+        return;
+      }
+      showStep('consent');
+    });
+
+    const consentCheck = document.getElementById('consent-check') as HTMLInputElement;
+    const consentNext = document.getElementById('btn-consent-next') as HTMLButtonElement;
+    consentCheck.addEventListener('change', () => {
+      consent = consentCheck.checked;
+      consentNext.disabled = !consent;
+    });
+
+    document.getElementById('btn-consent-back')!.addEventListener('click', () => showStep('code'));
+    document.getElementById('btn-consent-next')!.addEventListener('click', () => {
+      if (!consentCheck.checked) return;
+      qIndex = 0;
+      showStep('questions');
+      renderQuestion();
+    });
+
+    document.getElementById('btn-q-back')!.addEventListener('click', () => {
+      if (qIndex === 0) {
+        showStep('consent');
+        return;
+      }
+      qIndex -= 1;
+      renderQuestion();
+    });
+
+    document.getElementById('btn-q-next')!.addEventListener('click', () => {
+      const q = questions[qIndex];
+      const selected = document.querySelector(
+        `input[name="q-${q.id}"]:checked`
+      ) as HTMLInputElement | null;
+      const err = document.getElementById('question-error')!;
+      if (!selected) {
+        err.classList.remove('hidden');
+        return;
+      }
+      answers[q.id] = selected.value;
+      if (qIndex === questions.length - 1) {
+        submit();
+        return;
+      }
+      qIndex += 1;
+      renderQuestion();
+    });
+
+    document.getElementById('btn-restart')!.addEventListener('click', () => {
+      Object.keys(answers).forEach((k) => delete answers[k]);
+      qIndex = 0;
+      showStep('code');
+    });
+  }
+</script>

@@ -16,6 +16,16 @@
 # Gallery removals are persisted in src/data/removed-photos.json via
 # /.netlify/functions/removed-photos (GET list / POST hide).
 #
+# Community census (anonymous aggregates + one-time invites):
+#   TURSO_DATABASE_URL   - libSQL/Turso database URL (required for /pesquisa)
+#   TURSO_AUTH_TOKEN     - Turso auth token
+#   PESQUISA_ADMIN_SECRET - shared secret for /admin/pesquisa-invites (generate codes)
+#
+# Setup: create a free Turso database, copy URL + token into Netlify env,
+# set a strong PESQUISA_ADMIN_SECRET, then open /admin/pesquisa-invites to mint codes.
+# Participants use /pesquisa (noindex). Charts appear on /quem-somos after the
+# publish threshold (see src/data/pesquisa-instrument.mjs).
+#
 
 # Allow OAuth popup (GitHub login) to postMessage back to /admin
 [[headers]]

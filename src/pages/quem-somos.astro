@@ -1,5 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import {
+  MIN_RESPONSES_TO_PUBLISH,
+  chartQuestionIds,
+  questions,
+} from '../data/pesquisa-instrument.mjs';
 
 const team = [
   {
@@ -10,6 +15,11 @@ const team = [
     image: '/images/retrato_StefanoAguiar.webp',
   },
 ];
+
+const chartMeta = chartQuestionIds.map((id) => {
+  const q = questions.find((item) => item.id === id);
+  return { id, label: q?.label || id };
+});
 ---
 
 <BaseLayout title="Quem Somos">
@@ -39,4 +49,172 @@ const team = [
       </article>
     ))}
   </div>
+
+  <section
+    id="comunidade"
+    class="mt-16 pt-12 border-t border-slate-200"
+    aria-labelledby="comunidade-heading"
+  >
+    <div class="mb-8 max-w-2xl">
+      <h2 id="comunidade-heading" class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+        A nossa comunidade
+      </h2>
+      <p class="text-slate-600 mt-2 leading-relaxed">
+        Um retrato anónimo de quem participa no Porto Não-Monogâmico — faixas etárias, identidades,
+        práticas relacionais e geografia aproximada. Os dados vêm de uma pesquisa por convite,
+        sem nomes nem contactos; só contagens agregadas.
+      </p>
+    </div>
+
+    <div
+      id="community-stats"
+      class="space-y-8"
+      data-chart-meta={JSON.stringify(chartMeta)}
+      data-min-responses={String(MIN_RESPONSES_TO_PUBLISH)}
+    >
+      <div
+        id="stats-loading"
+        class="rounded-2xl border border-slate-200 bg-white px-5 py-8 text-sm text-slate-500 text-center"
+      >
+        A carregar o retrato da comunidade…
+      </div>
+
+      <div
+        id="stats-pending"
+        class="hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center space-y-2"
+      >
+        <p class="text-base font-semibold text-slate-800">Ainda a recolher respostas anónimas</p>
+        <p id="stats-pending-msg" class="text-sm text-slate-600 max-w-md mx-auto leading-relaxed"></p>
+        <p class="text-sm pt-1">
+          <a href="/pesquisa/metodologia" class="font-semibold text-indigo-700 hover:underline">
+            Como funciona a metodologia
+          </a>
+        </p>
+      </div>
+
+      <div id="stats-error" class="hidden rounded-2xl border border-rose-200 bg-rose-50 px-5 py-6 text-sm text-rose-800">
+        Não foi possível carregar as estatísticas neste momento.
+      </div>
+
+      <div id="stats-charts" class="hidden space-y-8">
+        <p id="stats-total" class="text-sm text-slate-500"></p>
+        <div class="grid md:grid-cols-2 gap-6">
+          {chartMeta.map((chart) => (
+            <figure class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
+              <figcaption class="text-sm font-bold text-slate-900 mb-3">{chart.label}</figcaption>
+              <div class="relative h-56 sm:h-64">
+                <canvas id={`chart-${chart.id}`} aria-label={`Gráfico: ${chart.label}`}></canvas>
+              </div>
+            </figure>
+          ))}
+        </div>
+        <p class="text-xs text-slate-500 leading-relaxed max-w-2xl">
+          Categorias com poucas respostas são agrupadas em «Outros / oculto» para proteger o anonimato.
+          <a href="/pesquisa/metodologia" class="text-indigo-700 hover:underline">Metodologia e RGPD</a>.
+        </p>
+      </div>
+    </div>
+  </section>
 </BaseLayout>
+
+<script>
+  import Chart from 'chart.js/auto';
+
+  const root = document.getElementById('community-stats');
+  if (root) {
+    const chartMeta = JSON.parse(root.dataset.chartMeta || '[]') as Array<{ id: string; label: string }>;
+    const minResponses = Number(root.dataset.minResponses || 10);
+
+    const loading = document.getElementById('stats-loading')!;
+    const pending = document.getElementById('stats-pending')!;
+    const pendingMsg = document.getElementById('stats-pending-msg')!;
+    const errorEl = document.getElementById('stats-error')!;
+    const chartsEl = document.getElementById('stats-charts')!;
+    const totalEl = document.getElementById('stats-total')!;
+
+    const palette = ['#4f46e5', '#be123c', '#0f766e', '#b45309', '#7c3aed', '#0369a1', '#a21caf', '#334155'];
+
+    try {
+      const res = await fetch('/.netlify/functions/pesquisa-aggregates');
+      const data = await res.json();
+      loading.classList.add('hidden');
+
+      if (!res.ok && data.published !== true && data.published !== false) {
+        errorEl.classList.remove('hidden');
+      } else if (!data.published) {
+        const total = Number(data.totalResponses || 0);
+        const need = Number(data.minResponses || minResponses);
+        pendingMsg.textContent =
+          total === 0
+            ? `Quando tivermos pelo menos ${need} respostas anónimas, os gráficos aparecem aqui.`
+            : `Já temos ${total} resposta${total === 1 ? '' : 's'}. Os gráficos publicam-se a partir de ${need}.`;
+        pending.classList.remove('hidden');
+      } else {
+        totalEl.textContent = `Com base em ${data.totalResponses} respostas anónimas.`;
+        chartsEl.classList.remove('hidden');
+
+        for (const meta of chartMeta) {
+          const canvas = document.getElementById(`chart-${meta.id}`) as HTMLCanvasElement | null;
+          if (!canvas) continue;
+          const buckets = (data.questions?.[meta.id] || []) as Array<{
+            id: string;
+            label: string;
+            count: number;
+          }>;
+          if (buckets.length === 0) {
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.fillStyle = '#94a3b8';
+              ctx.font = '14px system-ui, sans-serif';
+              ctx.fillText('Sem dados neste gráfico', 8, 28);
+            }
+            continue;
+          }
+
+          new Chart(canvas, {
+            type: 'bar',
+            data: {
+              labels: buckets.map((b) => b.label),
+              datasets: [
+                {
+                  data: buckets.map((b) => b.count),
+                  backgroundColor: buckets.map((_, i) => palette[i % palette.length]),
+                  borderWidth: 0,
+                  borderRadius: 6,
+                  barThickness: 22,
+                },
+              ],
+            },
+            options: {
+              indexAxis: 'y',
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) => ` ${ctx.parsed.x} resposta${ctx.parsed.x === 1 ? '' : 's'}`,
+                  },
+                },
+              },
+              scales: {
+                x: {
+                  beginAtZero: true,
+                  ticks: { precision: 0, color: '#64748b' },
+                  grid: { color: '#e2e8f0' },
+                },
+                y: {
+                  ticks: { color: '#334155', font: { size: 11 } },
+                  grid: { display: false },
+                },
+              },
+            },
+          });
+        }
+      }
+    } catch {
+      loading.classList.add('hidden');
+      errorEl.classList.remove('hidden');
+    }
+  }
+</script>

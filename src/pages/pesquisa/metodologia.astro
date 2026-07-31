@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { MIN_BUCKET_COUNT, MIN_RESPONSES_TO_PUBLISH } from '../../data/pesquisa-instrument.mjs';
+---
+
+<BaseLayout title="Metodologia da pesquisa" noindex={true}>
+  <article class="max-w-2xl space-y-6">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-wide text-indigo-600 mb-2">Mapa da comunidade</p>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+        Metodologia e anonimato
+      </h1>
+      <p class="text-slate-600 mt-2 leading-relaxed">
+        Como recolhemos e publicamos o retrato anónimo da comunidade Porto Não-Monogâmico.
+      </p>
+    </div>
+
+    <section class="space-y-3 text-sm text-slate-600 leading-relaxed">
+      <h2 class="text-lg font-bold text-slate-900">O que perguntamos</h2>
+      <p>
+        Um questionário curto com categorias em faixas (idade aproximada, género, orientação,
+        prática relacional, zona grosseira, participação). Todas as perguntas incluem
+        «Prefiro não dizer». Não há campos de texto livre.
+      </p>
+    </section>
+
+    <section class="space-y-3 text-sm text-slate-600 leading-relaxed">
+      <h2 class="text-lg font-bold text-slate-900">Convites de uso único</h2>
+      <p>
+        A participação é por convite. Um administrador gera códigos e partilha-os em privado
+        (por exemplo após uma tertúlia). No servidor guardamos apenas o <em>hash</em> do código —
+        nunca o destinatário, email ou notas. No envio, o código é invalidado e as respostas
+        entram só como incrementos de contagens. O código e as respostas nunca ficam ligados.
+      </p>
+    </section>
+
+    <section class="space-y-3 text-sm text-slate-600 leading-relaxed">
+      <h2 class="text-lg font-bold text-slate-900">O que guardamos</h2>
+      <ul class="list-disc pl-5 space-y-1.5">
+        <li>Hashes de códigos (usados ou por usar) e a data em que foram criados ou usados.</li>
+        <li>Contagens agregadas por pergunta e opção, e o total de respostas.</li>
+        <li>Não guardamos respostas individuais, IP, cookies de identificação, nem o código junto das respostas.</li>
+      </ul>
+    </section>
+
+    <section class="space-y-3 text-sm text-slate-600 leading-relaxed">
+      <h2 class="text-lg font-bold text-slate-900">Publicação (k-anonimato)</h2>
+      <p>
+        Os gráficos em Quem Somos só aparecem com pelo menos
+        <strong class="font-semibold text-slate-800">{MIN_RESPONSES_TO_PUBLISH} respostas</strong>.
+        Categorias com menos de
+        <strong class="font-semibold text-slate-800">{MIN_BUCKET_COUNT} respostas</strong>
+        são agrupadas em «Outros / oculto», para reduzir o risco de identificação em amostras pequenas.
+      </p>
+    </section>
+
+    <section class="space-y-3 text-sm text-slate-600 leading-relaxed">
+      <h2 class="text-lg font-bold text-slate-900">RGPD e dados pessoais</h2>
+      <p>
+        O Regulamento Geral sobre a Proteção de Dados aplica-se a dados pessoais — informação
+        relativa a uma pessoa identificada ou identificável. Dados verdadeiramente anónimos,
+        que não permitem identificar alguém (incluindo por combinação com outros dados),
+        situam-se fora desse âmbito (considerando 26 do RGPD).
+      </p>
+      <p>
+        Este desenho pretende produzir apenas estatísticas anónimas: sem contactos, sem texto livre,
+        sem ligação entre convite e respostas, e com limiares mínimos na publicação.
+        Pedimos confirmação de participação voluntária por transparência — não como base legal
+        para tratar dados identificáveis, porque não os recolhemos.
+      </p>
+      <p class="text-xs text-slate-500">
+        Esta página é informativa e não constitui aconselhamento jurídico.
+      </p>
+    </section>
+
+    <p class="pt-2">
+      <a href="/quem-somos" class="text-sm font-semibold text-indigo-700 hover:underline">
+        Voltar a Quem Somos
+      </a>
+    </p>
+  </article>
+</BaseLayout>
