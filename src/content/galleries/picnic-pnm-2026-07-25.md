@@ -1,5 +1,5 @@
 ---
-title: Picnic PNM
+title: Picnic PNM + OUSARE
 eventDate: 2026-07-25
 location: Porto
 photos:
