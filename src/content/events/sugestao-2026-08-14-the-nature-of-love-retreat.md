@@ -1,13 +1,13 @@
 ---
-title: "🌿 THE NATURE OF LOVE RETREAT"
+approved: true
+title: 🌿 THE NATURE OF LOVE RETREAT
 eventDate: 2026-09-10T10:00:00.000Z
-location: "A anunciar"
+location: A anunciar
 tags: []
-photosUrl: ""
+photosUrl: ''
 external: true
-approved: false
-suggestedBy: "Luis"
-suggestedEmail: "danieldaguida@gmail.com"
+suggestedBy: Luis
+suggestedEmail: danieldaguida@gmail.com
 ---
 
 🌿 THE NATURE OF LOVE RETREAT
