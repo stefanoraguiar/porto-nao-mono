@@ -1,6 +1,6 @@
 ---
 approved: true
-title: Tertúlias Não-Monogâmicas - 51º Encontro
+title: Tertúlias Não-Monogâmicas - 51.º Encontro
 eventDate: 2026-08-13T19:00
 location: Espaço Compasso
 tags: []
@@ -27,4 +27,4 @@ Junta-te a nós nesta jornada de descoberta e construção do amor que merecemos
 
 Esperamos por ti!
 
-Arte: [@megscolours](https://www.instagram.com/megscolours/) [@megscolourgraphy](https://www.instagram.com/megscolourgraphy/)
+Arte: [@megscolours](https://www.instagram.com/megscolours/) [@megscolourgraphy](https://www.instagram.com/megscolourgraphy/)![](/images/uploads/Tertulia51.png)
