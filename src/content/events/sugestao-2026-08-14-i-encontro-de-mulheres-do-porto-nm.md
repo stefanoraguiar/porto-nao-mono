@@ -1,6 +1,6 @@
 ---
-approved: false
-title: I Encontro de mulheres do Porto NM
+approved: true
+title: I Encontro de Mulheres do Porto NM
 eventDate: 2026-08-23T10:00:00.000Z
 location: Zenith (Praça Carlos Alberto - Porto).
 tags: []
