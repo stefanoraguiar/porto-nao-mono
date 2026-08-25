@@ -1,6 +1,6 @@
 ---
 approved: true
-title: Tertúlias Não-Monogâmicas — 52.º Encontro
+title: 'Tertúlias Não-Monogâmicas — 52.º Encontro - Ciúmes: Vilão ou Mensageiro?'
 eventDate: 2026-08-27T19:00
 location: Espaço Compasso
 tags:
@@ -11,14 +11,11 @@ suggestedBy: ''
 suggestedEmail: ''
 ---
 
-Tertúlias Não-Monogâmicas — 52.º Encontro
+<a href="https://ibb.co/LdtH5q72"><img src="https://i.ibb.co/1Gqj6pWw/Whats-App-Image-2026-08-19-at-22-08-41.jpg" alt="Whats-App-Image-2026-08-19-at-22-08-41" border="0"></a>
 
 🗓️ 27 de Agosto (quinta-feira)
-
 🕖 19:00h
-
 📍 Espaço Compasso
-
 ✨ Ciumes: Vilão ou Mensageiro?
 
 As Tertúlias Não-Monogâmicas regressam com 52º encontro, desta vez, queremos falar sobre um sentimento que tantas vezes atravessa as nossas relações: o ciúme.
