@@ -1,13 +1,13 @@
 ---
-title: "M.A.G.I.C."
+approved: true
+title: M.A.G.I.C.
 eventDate: 2026-08-27T18:30:00.000Z
-location: "A anunciar"
+location: A anunciar
 tags: []
-photosUrl: ""
+photosUrl: ''
 external: false
-approved: false
-suggestedBy: "Luis"
-suggestedEmail: "luislourooliveira@gmail.com"
+suggestedBy: Luis
+suggestedEmail: luislourooliveira@gmail.com
 ---
 
 🜂 MAGIC Online Circles — Agosto
