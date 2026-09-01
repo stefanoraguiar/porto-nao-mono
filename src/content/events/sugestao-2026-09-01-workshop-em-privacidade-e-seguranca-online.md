@@ -1,5 +1,5 @@
 ---
-approved: false
+approved: true
 title: Workshop em Privacidade e Segurança Online
 eventDate: 2026-09-17T18:30:00.000Z
 location: Cave
