@@ -1,13 +1,13 @@
 ---
-title: "Munch no dia de Tom Brady"
+approved: true
+title: Munch no dia de Tom Brady
 eventDate: 2026-09-03T17:30:00.000Z
-location: "Fabrica"
+location: Fabrica
 tags: []
-photosUrl: ""
+photosUrl: ''
 external: false
-approved: false
-suggestedBy: "Panda"
-suggestedEmail: "MNE@lichias.net"
+suggestedBy: Panda
+suggestedEmail: MNE@lichias.net
 ---
 
 Um Munch é um evento social para a comunidade Kink e BDSM. Geralmente organizado num pub, bar ou restaurante. Nós temos a lena.
