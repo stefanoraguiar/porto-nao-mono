@@ -1,13 +1,13 @@
 ---
-title: "I encontro de mulheres do Porto NM"
+approved: true
+title: I encontro de mulheres do Porto NM
 eventDate: 2026-08-23T10:00:00.000Z
-location: "Zenith (Praça Carlos Alberto - Porto)."
+location: Zenith (Praça Carlos Alberto - Porto).
 tags: []
-photosUrl: ""
+photosUrl: ''
 external: false
-approved: false
-suggestedBy: "Aline Merçon"
-suggestedEmail: "alinebmercon@hotmail.com"
+suggestedBy: Aline Merçon
+suggestedEmail: alinebmercon@hotmail.com
 ---
 
 Em um brunch descontraído no Zenith Café, vamos realizar o primeiro encontro de mulheres do grupo Porto Não Monogâmico.
