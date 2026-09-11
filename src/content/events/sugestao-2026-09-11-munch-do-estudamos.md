@@ -1,13 +1,13 @@
 ---
-title: "Munch do Estudamos"
+approved: true
+title: Munch do Estudamos
 eventDate: 2026-09-17T17:30:00.000Z
-location: "Fábrica"
+location: Fábrica
 tags: []
-photosUrl: ""
+photosUrl: ''
 external: false
-approved: false
-suggestedBy: "Panda"
-suggestedEmail: "munch@fernandomiguel.net"
+suggestedBy: Panda
+suggestedEmail: munch@fernandomiguel.net
 ---
 
 Este Munch vai ser realizado em paralelo com um workshop. Podes vir ao Munch ou ao workshop ou aos dois. 
