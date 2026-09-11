@@ -1,13 +1,13 @@
 ---
-title: "Meu Primeiro Retiro de Mindfulness e Yoga"
+approved: true
+title: Meu Primeiro Retiro de Mindfulness e Yoga
 eventDate: 2026-10-16T17:30:00.000Z
-location: "Barcelos"
+location: Barcelos
 tags: []
-photosUrl: ""
+photosUrl: ''
 external: true
-approved: false
-suggestedBy: "Tatiana Buhrnheim"
-suggestedEmail: "tatibuh@gmail.com"
+suggestedBy: Tatiana Buhrnheim
+suggestedEmail: tatibuh@gmail.com
 ---
 
 https://meditt.space/t/mindfulness-yoga
