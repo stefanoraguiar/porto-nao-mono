@@ -1,13 +1,13 @@
 ---
-title: "Festa Crepúsculo"
+approved: true
+title: Festa Crepúsculo
 eventDate: 2026-10-17T22:59:00.000Z
-location: "Porto"
+location: Porto
 tags: []
-photosUrl: ""
+photosUrl: ''
 external: true
-approved: false
-suggestedBy: "Maria Silva"
-suggestedEmail: "maria.silva1901@hotmail.com"
+suggestedBy: Maria Silva
+suggestedEmail: maria.silva1901@hotmail.com
 ---
 
 Uma kinky party focada em música eletrónica, com dress code obrigatório, sem telemóveis e sem julgamentos. É um evento pensado para liberdade de expressão, dentro do respeito e do consentimento.
