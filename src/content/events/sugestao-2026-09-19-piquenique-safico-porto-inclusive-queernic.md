@@ -1,13 +1,13 @@
 ---
-title: "Piquenique Sáfico - Porto Inclusive & Queernic"
+approved: true
+title: Piquenique Sáfico - Porto Inclusive & Queernic
 eventDate: 2026-09-26T13:00:00.000Z
-location: "Parque São Roque (Porto)"
+location: Parque São Roque (Porto)
 tags: []
-photosUrl: ""
+photosUrl: ''
 external: true
-approved: false
-suggestedBy: "Luis Torres"
-suggestedEmail: "boreaswind@gmail.com"
+suggestedBy: Luis Torres
+suggestedEmail: boreaswind@gmail.com
 ---
 
 Voltamos após o verão com uma novidade! 🤩 Juntamo-nos ao @queernicportugal para o Piquenique Sáfico! 🧡🤍🩷
