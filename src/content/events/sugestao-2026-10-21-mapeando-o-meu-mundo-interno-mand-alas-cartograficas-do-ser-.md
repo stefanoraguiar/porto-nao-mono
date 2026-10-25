@@ -1,13 +1,13 @@
 ---
-title: "🌿 MAPEANDO O MEU MUNDO INTERNO: Mand﻿alas Cartográficas do Ser — Nível 1"
+approved: true
+title: '🌿 MAPEANDO O MEU MUNDO INTERNO: Mand﻿alas Cartográficas do Ser — Nível 1'
 eventDate: 2026-11-07T15:00:00.000Z
-location: "A anunciar"
+location: A anunciar
 tags: []
-photosUrl: ""
+photosUrl: ''
 external: true
-approved: false
-suggestedBy: "Aline Merçon"
-suggestedEmail: "alinebmercon@hotmail.com"
+suggestedBy: Aline Merçon
+suggestedEmail: alinebmercon@hotmail.com
 ---
 
 🌿 MAPEANDO O MEU MUNDO INTERNO 
