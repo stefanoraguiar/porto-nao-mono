@@ -1,13 +1,13 @@
 ---
-title: "The Haunted Munch 🎃"
+approved: true
+title: The Haunted Munch 🎃
 eventDate: 2026-10-29T18:30:00.000Z
-location: "Munch"
+location: Munch
 tags: []
-photosUrl: ""
+photosUrl: ''
 external: false
-approved: false
-suggestedBy: "Princess Panda"
-suggestedEmail: "munch@fernandomiguel.net"
+suggestedBy: Princess Panda
+suggestedEmail: munch@fernandomiguel.net
 ---
 
 Munch de Halloween.
