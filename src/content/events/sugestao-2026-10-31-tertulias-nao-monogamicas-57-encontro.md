@@ -1,13 +1,13 @@
 ---
-title: "Tertúlias Não-Monogâmicas — 57.º Encontro"
+approved: true
+title: Tertúlias Não-Monogâmicas — 57.º Encontro
 eventDate: 2026-11-05T19:02:00.000Z
-location: "Porto"
+location: Porto
 tags: []
-photosUrl: ""
+photosUrl: ''
 external: false
-approved: false
-suggestedBy: "Luis Louro"
-suggestedEmail: "luislourooliveira@gmail.com"
+suggestedBy: Luis Louro
+suggestedEmail: luislourooliveira@gmail.com
 ---
 
 ✨ **Tertúlias Não-Monogâmicas — 57.º Encontro**  
