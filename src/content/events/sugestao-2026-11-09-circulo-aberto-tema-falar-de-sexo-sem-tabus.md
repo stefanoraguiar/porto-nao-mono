@@ -1,13 +1,13 @@
 ---
-title: "Círculo Aberto. Tema: falar de sexo sem tabus"
+approved: true
+title: 'Círculo Aberto. Tema: falar de sexo sem tabus'
 eventDate: 2026-12-11T20:00:00.000Z
-location: "Matosinhos"
+location: Matosinhos
 tags: []
-photosUrl: ""
+photosUrl: ''
 external: true
-approved: false
-suggestedBy: "Luis"
-suggestedEmail: "luislourooliveira@gmail.com"
+suggestedBy: Luis
+suggestedEmail: luislourooliveira@gmail.com
 ---
 
 "Círculo Aberto” é um encontro de pessoas incríveis, num casarão à beira mar, cheio de experiência em bem receber.
